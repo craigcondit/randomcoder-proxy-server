@@ -14,7 +14,11 @@
 		<property name="endpointTracker" ref="endpointTracker" />
 		<property name="requireSession" value="false" />
 		<property name="cacheSeconds" value="0" />
-		<property name="supportedMethods" value="GET" />
+		<property name="supportedMethods">
+			<list>
+				<value>GET</value>
+			</list>
+		</property>
 	</bean>
 
 	<bean
@@ -26,9 +30,13 @@
 
 	<bean
 			id="sendController"
-			class="com.randomcoder.proxy.server.ReceiveController"
+			class="com.randomcoder.proxy.server.SendController"
 			parent="abstractProxyController">
-		<property name="supportedMethods" value="POST" />
+		<property name="supportedMethods">
+			<list>
+				<value>POST</value>
+			</list>
+		</property>
 	</bean>
 
 	<bean
@@ -51,7 +59,7 @@
 		<property name="mappings">
 			<props>
 				<prop key="/connect">connectController</prop>
-				<prop key="/send">receiveController</prop>
+				<prop key="/send">sendController</prop>
 				<prop key="/receive">receiveController</prop>
 				<prop key="/ping">pingController</prop>
 				<prop key="/disconnect">disconnectController</prop>

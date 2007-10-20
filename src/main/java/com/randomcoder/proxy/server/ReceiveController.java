@@ -5,7 +5,6 @@ import java.io.*;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.*;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.validation.BindException;
 import org.springframework.web.servlet.ModelAndView;
@@ -100,7 +99,29 @@ public class ReceiveController extends AbstractCommandController
 		try
 		{
 			out = response.getOutputStream();
-			IOUtils.copyLarge(endpoint.getInputStream(), out);		
+			out.flush();
+			InputStream endpointStream = endpoint.getInputStream();
+
+			// must send something here so that server will actually flush the result
+			out.write("SENDING\r\n".getBytes("UTF-8"));
+			out.flush();
+			
+			byte[] buf = new byte[32768];
+			int c;
+			do
+			{
+				c = endpointStream.read(buf, 0, 32768);
+				if (c > 0)
+				{
+					logger.debug("Wrote " + c + " bytes");
+					out.write(buf, 0, c);
+					out.flush();
+					
+					if (!endpointTracker.refresh(form.getId()))
+						break;
+				}
+			}
+			while (c >= 0);
 		}
 		finally
 		{

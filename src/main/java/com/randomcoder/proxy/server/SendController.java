@@ -3,10 +3,9 @@ package com.randomcoder.proxy.server;
 import java.io.*;
 import java.text.DecimalFormat;
 
-import javax.servlet.ServletInputStream;
+import javax.servlet.*;
 import javax.servlet.http.*;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.validation.BindException;
 import org.springframework.web.servlet.ModelAndView;
@@ -80,8 +79,6 @@ public class SendController extends AbstractCommandController
 	{
 		IdCommand form = (IdCommand) command;
 
-		endpointTracker.refresh(form.getId());
-		
 		Endpoint endpoint = endpointTracker.getEndpoint(form.getId());
 		
 		if (endpoint == null)
@@ -94,21 +91,41 @@ public class SendController extends AbstractCommandController
 		}
 
 		ServletInputStream in = null;
-		PrintWriter out = null;		
+		ServletOutputStream out = null;		
 		try
 		{
 			in = request.getInputStream();
-			int bytes = IOUtils.copy(in, endpoint.getOutputStream());
+			
+			OutputStream endpointOutputStream = endpoint.getOutputStream();			
+			byte[] buf = new byte[32768];
+			int bytes = 0;
+			int c = 0;
+			do
+			{
+				c = in.read(buf, 0, 32768);
+				if (c > 0)
+				{
+					endpointOutputStream.write(buf, 0, c);
+					bytes += c;
+					if (!endpointTracker.refresh(form.getId()))
+						break;
+				}
+			}
+			while (c >= 0);
 			
 			response.setStatus(HttpServletResponse.SC_OK);
 			response.setContentType("text/plain");
 			
 			DecimalFormat df = new DecimalFormat("##########");
-			out = response.getWriter();
-			out.print("RECEIVED " + df.format(bytes));
+			byte[] message = ("RECEIVED " + df.format(bytes) + "\r\n").getBytes("UTF-8");
+			response.setContentLength(message.length);
+			
+			out = response.getOutputStream();
+			out.write(message);
+			out.flush();
 			
 			if (logger.isDebugEnabled())
-				logger.debug("Receive [" + form.getId() + "]: received " + bytes + " bytes");
+				logger.debug("Send [" + form.getId() + "]: received " + bytes + " bytes");
 		}
 		finally
 		{

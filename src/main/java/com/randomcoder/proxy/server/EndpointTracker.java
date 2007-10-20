@@ -163,7 +163,12 @@ public class EndpointTracker implements InitializingBean, DisposableBean
 	 */
 	public boolean refresh(String id)
 	{
-		return (expirationMap.replace(id, System.currentTimeMillis() + maxIdle) != null);
+		long timeout = System.currentTimeMillis() + maxIdle;
+		Long oldTimeout = expirationMap.replace(id, timeout);
+		
+		logger.debug("Refresh [" + id + "]: old=" + oldTimeout + ",new=" + timeout);
+
+		return (oldTimeout != null);
 	}
 
 	/**
@@ -199,10 +204,12 @@ public class EndpointTracker implements InitializingBean, DisposableBean
 				{
 					long now = System.currentTimeMillis();
 					
+					logger.debug("Checking for stale connections, time = " + now);
+					
 					// walk object map
 					for (Map.Entry<String, Long> entry : expirationMap.entrySet())
 					{
-						if (entry.getValue() >= now)
+						if (entry.getValue() <= now)
 						{
 							// remove stale object
 							String id = entry.getKey();							
@@ -215,6 +222,8 @@ public class EndpointTracker implements InitializingBean, DisposableBean
 							}							
 						}
 					}
+					
+					logger.debug("Done checking for stale connections");
 					
 					// sleep until next round
 					try { Thread.sleep(evictionFrequency); } catch (InterruptedException ignored) {}					
