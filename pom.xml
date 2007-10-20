@@ -19,6 +19,17 @@
     <developerConnection>scm:svn:https://randomcoder.com/repos/public/randomcoder-proxy-server/trunk</developerConnection>
     <url>http://randomcoder.com/repos/public/randomcoder-proxy-server/trunk</url>
   </scm>
+  <profiles>
+  	<profile>
+  		<id>props</id>
+  		<activation>
+  			<activeByDefault>true</activeByDefault>
+  		</activation>
+  		<properties>
+  			<spring.version>2.0.7</spring.version>
+  		</properties>
+  	</profile>
+  </profiles>
   <repositories>
     <repository>
       <releases>
@@ -71,6 +82,21 @@
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
       <version>1.1.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>${spring.version}</version>
     </dependency>
     <dependency>
       <groupId>taglibs</groupId>
