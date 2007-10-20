@@ -157,6 +157,7 @@
   				<links>
 						<link>http://java.sun.com/javase/6/docs/api/</link>
 						<link>http://java.sun.com/j2ee/1.4/docs/api/</link>
+						<link>http://www.springframework.org/docs/api/</link>
 						<link>http://www.acegisecurity.org/multiproject/acegi-security/apidocs/</link>
   				</links>
   			</configuration>

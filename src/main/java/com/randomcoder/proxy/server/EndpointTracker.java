@@ -126,7 +126,7 @@ public class EndpointTracker implements InitializingBean, DisposableBean
 	/**
 	 * Adds a new endpoint to the tracker.
 	 * 
-	 * @param endpoing
+	 * @param endpoint
 	 *          endpoint to add
 	 * @return unique identifier
 	 */
