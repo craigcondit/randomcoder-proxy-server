@@ -9,26 +9,50 @@
 	<!-- Enforce @Required annotations -->
 	<bean class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
 
-	<bean id="connectController" class="com.randomcoder.proxy.server.ConnectController">
+	<bean id="abstractProxyController" abstract="true">
+		<property name="commandClass" value="com.randomcoder.proxy.server.IdCommand" />
+		<property name="endpointTracker" ref="endpointTracker" />
+		<property name="requireSession" value="false" />
+		<property name="cacheSeconds" value="0" />
+		<property name="supportedMethods" value="GET" />
+	</bean>
+
+	<bean
+			id="connectController"
+			class="com.randomcoder.proxy.server.ConnectController"
+			parent="abstractProxyController">
 		<property name="commandClass" value="com.randomcoder.proxy.server.ConnectCommand" />
-		<property name="endpointTracker" ref="endpointTracker" />
 	</bean>
 
-	<bean id="pingController" class="com.randomcoder.proxy.server.PingController">
-		<property name="commandClass" value="com.randomcoder.proxy.server.IdCommand" />
-		<property name="endpointTracker" ref="endpointTracker" />
+	<bean
+			id="sendController"
+			class="com.randomcoder.proxy.server.ReceiveController"
+			parent="abstractProxyController">
+		<property name="supportedMethods" value="POST" />
 	</bean>
 
-	<bean id="disconnectController" class="com.randomcoder.proxy.server.DisconnectController">
-		<property name="commandClass" value="com.randomcoder.proxy.server.IdCommand" />
-		<property name="endpointTracker" ref="endpointTracker" />
-	</bean>
-		
+	<bean
+			id="receiveController"
+			class="com.randomcoder.proxy.server.ReceiveController"
+			parent="abstractProxyController" />
+
+	<bean
+			id="pingController"
+			class="com.randomcoder.proxy.server.PingController"
+			parent="abstractProxyController" />
+
+	<bean
+			id="disconnectController"
+			class="com.randomcoder.proxy.server.DisconnectController"
+			parent="abstractProxyController" />
+
 	<bean id="handlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
 		<property name="alwaysUseFullPath" value="true" />
 		<property name="mappings">
 			<props>
 				<prop key="/connect">connectController</prop>
+				<prop key="/send">receiveController</prop>
+				<prop key="/receive">receiveController</prop>
 				<prop key="/ping">pingController</prop>
 				<prop key="/disconnect">disconnectController</prop>
 			</props>

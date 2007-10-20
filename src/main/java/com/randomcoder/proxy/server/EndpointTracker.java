@@ -175,7 +175,7 @@ public class EndpointTracker implements InitializingBean, DisposableBean
 	 */
 	public Endpoint getEndpoint(String id)
 	{
-		return null;
+		return endpointMap.get(id);
 	}
 	
 	private final class ReaperThread extends Thread
