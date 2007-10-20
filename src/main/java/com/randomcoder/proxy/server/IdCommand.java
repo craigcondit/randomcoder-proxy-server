@@ -1,13 +1,9 @@
 package com.randomcoder.proxy.server;
 
-import java.io.*;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.*;
+import java.io.Serializable;
 
 /**
- * Servlet which implements the ping (or keepalive) operation for a proxy
- * connection.
+ * Command object which holds a String identifier.
  * 
  * <pre>
  * Copyright (c) 2007, Craig Condit. All rights reserved.
@@ -34,43 +30,30 @@ import javax.servlet.http.*;
  * POSSIBILITY OF SUCH DAMAGE.
  * </pre>
  */
-public class PingServlet extends HttpServlet
+public class IdCommand implements Serializable
 {
-	private static final long serialVersionUID = 5056342868683783827L;
+	private static final long serialVersionUID = 8138040901623819594L;
 
-	private EndpointTracker endpointTracker;
-	
+	private String id;
+
 	/**
-	 * Sets the endpoint tracker to use.
+	 * Gets the value of the id property.
 	 * 
-	 * @param endpointTracker
-	 *          endpoint tracker
+	 * @return identifier
 	 */
-	public void setEndpointTracker(EndpointTracker endpointTracker)
+	public String getId()
 	{
-		this.endpointTracker = endpointTracker;
+		return id;
 	}
-	
-	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-	throws ServletException, IOException
-	{
-		String id = request.getParameter("id");
-		
-		boolean active = endpointTracker.refresh(id);
 
-		response.setStatus(active ? HttpServletResponse.SC_OK : HttpServletResponse.SC_NOT_FOUND);
-		response.setContentType("text/plain");
-		
-		PrintWriter out = null;
-		try
-		{
-			out = response.getWriter();
-			out.print(active ? "ACTIVE\r\n" : "CLOSED\r\n");
-		}
-		finally
-		{
-			try { if (out != null) out.close(); } catch (Throwable ignored) {}
-		}
+	/**
+	 * Sets the value of the id property.
+	 * 
+	 * @param id
+	 *          identifier
+	 */
+	public void setId(String id)
+	{
+		this.id = id;
 	}
 }

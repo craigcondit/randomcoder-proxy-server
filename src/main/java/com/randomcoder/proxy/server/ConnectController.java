@@ -2,11 +2,14 @@ package com.randomcoder.proxy.server;
 
 import java.io.*;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.*;
 
+import org.springframework.validation.BindException;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.AbstractCommandController;
+
 /**
- * Servlet which establishes a new proxy connection.
+ * Controller which establishes a new proxy connection.
  * 
  * <pre>
  * Copyright (c) 2007, Craig Condit. All rights reserved.
@@ -33,9 +36,8 @@ import javax.servlet.http.*;
  * POSSIBILITY OF SUCH DAMAGE.
  * </pre>
  */
-public class ConnectServlet extends HttpServlet
+public class ConnectController extends AbstractCommandController
 {
-	private static final long serialVersionUID = 5056342868683783827L;
 
 	private EndpointTracker endpointTracker;
 	
@@ -50,15 +52,30 @@ public class ConnectServlet extends HttpServlet
 		this.endpointTracker = endpointTracker;
 	}
 	
+	/**
+	 * Processes the connect request.
+	 * 
+	 * @param request
+	 *          HTTP request
+	 * @param response
+	 *          HTTP response
+	 * @param command
+	 *          {@link ConnectCommand} instance
+	 * @param errors
+	 *          unused
+	 * @throws IOException
+	 *           if an I/O error occurs
+	 */
 	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-	throws ServletException, IOException
+	protected ModelAndView handle(
+			HttpServletRequest request, HttpServletResponse response,
+			Object command, BindException errors)
+	throws IOException
 	{
-		String host = request.getParameter("host");
-		int port = Integer.parseInt(request.getParameter("port"));
+		ConnectCommand form = (ConnectCommand) command;
 		
 		// create connection
-		Endpoint endpoint = new SocketEndpoint(host, port);
+		Endpoint endpoint = new SocketEndpoint(form.getHost(), form.getPort());
 		
 		// add to tracker
 		String id = endpointTracker.add(endpoint);
@@ -78,5 +95,6 @@ public class ConnectServlet extends HttpServlet
 		{
 			try { if (out != null) out.close(); } catch (Throwable ignored) {}
 		}
+		return null;
 	}
 }

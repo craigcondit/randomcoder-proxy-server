@@ -9,6 +9,11 @@
 	<!-- Enforce @Required annotations -->
 	<bean class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
 
+	<bean id="connectController" class="com.randomcoder.proxy.server.ConnectController">
+		<property name="commandClass" value="com.randomcoder.proxy.server.SocketCommand" />
+		<property name="endpointTracker" ref="endpointTracker" />
+	</bean>
+
 	<bean id="pingController" class="com.randomcoder.proxy.server.PingController">
 		<property name="commandClass" value="com.randomcoder.proxy.server.IdCommand" />
 		<property name="endpointTracker" ref="endpointTracker" />
@@ -18,6 +23,7 @@
 		<property name="alwaysUseFullPath" value="true" />
 		<property name="mappings">
 			<props>
+				<prop key="/connect">connectController</prop>
 				<prop key="/ping">pingController</prop>
 			</props>
 		</property>

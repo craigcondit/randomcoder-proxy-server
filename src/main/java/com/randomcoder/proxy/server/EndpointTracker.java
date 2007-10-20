@@ -180,7 +180,6 @@ public class EndpointTracker implements InitializingBean, DisposableBean
 			{
 				try
 				{
-
 					long now = System.currentTimeMillis();
 					
 					// walk object map
@@ -194,6 +193,7 @@ public class EndpointTracker implements InitializingBean, DisposableBean
 							Endpoint endpoint = endpointMap.remove(id);
 							if (endpoint != null)
 							{
+								log.info("Closing stale connection with ID " + id);
 								try { endpoint.close(); } catch (Throwable ignored) {}
 							}							
 						}
