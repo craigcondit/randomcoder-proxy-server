@@ -145,6 +145,11 @@
     		<artifactId>wagon-ssh-external</artifactId>
     		<version>1.0-beta-2</version>
     	</extension>
+    	<extension>
+    		<groupId>test</groupId>
+    		<artifactId>test</artifactId>
+    		<version>1.0</version>
+    	</extension>
     </extensions>
   </build>  
   <reporting>
