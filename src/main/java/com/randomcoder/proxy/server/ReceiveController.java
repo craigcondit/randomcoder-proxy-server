@@ -1,6 +1,7 @@
 package com.randomcoder.proxy.server;
 
 import java.io.*;
+import java.net.SocketException;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.*;
@@ -122,6 +123,10 @@ public class ReceiveController extends AbstractCommandController
 				}
 			}
 			while (c >= 0);
+		}
+		catch (SocketException e)
+		{
+			logger.debug("Receive [" + form.getId() + "]: " + e.getMessage());
 		}
 		finally
 		{
