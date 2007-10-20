@@ -4,13 +4,11 @@ import java.util.*;
 
 public class EndpointTracker
 {
-	private final Map<String, Endpoint> endpoints = new HashMap<String, Endpoint>();
-	private final Map<Long, Endpoint> 
+	private final Map<String, Endpoint> idMap = new HashMap<String, Endpoint>();
+	private final Map<String, Long> expireMap = new HashMap<String, Long>();
+	
 	public EndpointTracker()
 	{
-		/*
-		 * Need to iterate through endpoints periodically; possibly every 60 seconds.
-		 * Also need to be able to locate a particluar endpoint quickly
-		 */
 	}
+	
 }
