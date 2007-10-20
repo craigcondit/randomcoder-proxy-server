@@ -75,26 +75,43 @@ public class ConnectController extends AbstractCommandController
 		ConnectCommand form = (ConnectCommand) command;
 		
 		// create connection
-		Endpoint endpoint = new SocketEndpoint(form.getHost(), form.getPort());
+		Endpoint endpoint = null;
+		
+		try 
+		{
+			endpoint = new SocketEndpoint(form.getHost(), form.getPort());
+		}
+		catch (IOException e)
+		{
+			// can't connect
+			sendMessage(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "ERROR " + e.getMessage());
+			return null;
+		}
 		
 		// add to tracker
 		String id = endpointTracker.add(endpoint);
 		
 		// write out id to response
+		sendMessage(response, HttpServletResponse.SC_OK, "OPEN " + id);
+		return null;
+	}
+	
+	private void sendMessage(HttpServletResponse response, int status, String message)
+	throws IOException
+	{
 		response.setContentType("text/plain");
-		
+		response.setStatus(status);
+
 		PrintWriter out = null;
 		try
 		{
 			out = response.getWriter();
-			out.print("OPEN ");
-			out.print(id);
+			out.print(message);
 			out.print("\r\n");
 		}
 		finally
 		{
 			try { if (out != null) out.close(); } catch (Throwable ignored) {}
 		}
-		return null;
 	}
 }

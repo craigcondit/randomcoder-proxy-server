@@ -10,7 +10,7 @@
 	<bean class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
 
 	<bean id="connectController" class="com.randomcoder.proxy.server.ConnectController">
-		<property name="commandClass" value="com.randomcoder.proxy.server.SocketCommand" />
+		<property name="commandClass" value="com.randomcoder.proxy.server.ConnectCommand" />
 		<property name="endpointTracker" ref="endpointTracker" />
 	</bean>
 
