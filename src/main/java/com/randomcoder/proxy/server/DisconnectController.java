@@ -10,8 +10,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractCommandController;
 
 /**
- * Controller which implements the ping (or keepalive) operation for a proxy
- * connection.
+ * Controller which closes an active connection.
  * 
  * <pre>
  * Copyright (c) 2007, Craig Condit. All rights reserved.
@@ -38,9 +37,9 @@ import org.springframework.web.servlet.mvc.AbstractCommandController;
  * POSSIBILITY OF SUCH DAMAGE.
  * </pre>
  */
-public class PingController extends AbstractCommandController
+public class DisconnectController extends AbstractCommandController
 {
-	private static final Logger logger = Logger.getLogger(PingController.class);
+	private static final Logger logger = Logger.getLogger(DisconnectController.class);
 	
 	private EndpointTracker endpointTracker;
 	
@@ -56,7 +55,7 @@ public class PingController extends AbstractCommandController
 	}
 	
 	/**
-	 * Processes the ping request.
+	 * Processes the disconnect request.
 	 * 
 	 * @param request
 	 *          HTTP request
@@ -77,19 +76,19 @@ public class PingController extends AbstractCommandController
 	{
 		IdCommand form = (IdCommand) command;
 		
-		boolean active = endpointTracker.refresh(form.getId());
-
-		if (logger.isDebugEnabled())
-			logger.debug("Ping [" + form.getId() + "]: " + (active ? "active" : "closed"));
+		endpointTracker.remove(form.getId());
 		
-		response.setStatus(active ? HttpServletResponse.SC_OK : HttpServletResponse.SC_NOT_FOUND);
+		if (logger.isDebugEnabled())
+			logger.debug("Disconnect [" + form.getId() + "]");
+		
+		response.setStatus(HttpServletResponse.SC_OK);
 		response.setContentType("text/plain");
 		
 		PrintWriter out = null;
 		try
 		{
 			out = response.getWriter();
-			out.print(active ? "ACTIVE\r\n" : "CLOSED\r\n");
+			out.print("CLOSED\r\n");
 		}
 		finally
 		{

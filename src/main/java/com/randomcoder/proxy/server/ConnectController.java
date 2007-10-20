@@ -4,6 +4,7 @@ import java.io.*;
 
 import javax.servlet.http.*;
 
+import org.apache.log4j.Logger;
 import org.springframework.validation.BindException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractCommandController;
@@ -38,7 +39,8 @@ import org.springframework.web.servlet.mvc.AbstractCommandController;
  */
 public class ConnectController extends AbstractCommandController
 {
-
+	private static final Logger logger = Logger.getLogger(ConnectController.class);
+	
 	private EndpointTracker endpointTracker;
 	
 	/**
@@ -90,6 +92,8 @@ public class ConnectController extends AbstractCommandController
 		
 		// add to tracker
 		String id = endpointTracker.add(endpoint);
+
+		logger.info("Connect [" + id + "]: destination=" + form.getHost() + ":" + form.getPort());
 		
 		// write out id to response
 		sendMessage(response, HttpServletResponse.SC_OK, "OPEN " + id);

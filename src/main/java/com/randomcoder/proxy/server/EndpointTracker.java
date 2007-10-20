@@ -37,7 +37,7 @@ import org.springframework.beans.factory.*;
  */
 public class EndpointTracker implements InitializingBean, DisposableBean
 {
-	protected static final Logger log = Logger.getLogger(EndpointTracker.class);
+	protected static final Logger logger = Logger.getLogger(EndpointTracker.class);
 	
 	/**
 	 * Map of ids to endpoints
@@ -92,6 +92,7 @@ public class EndpointTracker implements InitializingBean, DisposableBean
 	{
 		reaperThread = new ReaperThread();
 		reaperThread.start();
+		logger.info("Endpoint tracker initialized");
 	}
 
 	/**
@@ -99,8 +100,27 @@ public class EndpointTracker implements InitializingBean, DisposableBean
 	 */
 	public void destroy()
 	{
-	// TODO stop reaper thread
+		logger.info("Endpoint tracker shutting down...");
+		
+		reaperThread.shutdown();
+		try { reaperThread.join(30000); } catch (InterruptedException ignored) {}
 
+		int count = 0;
+		
+		// make sure all referenced connections are closed
+		for (Map.Entry<String, Endpoint> entry : endpointMap.entrySet())
+		{
+			String id = entry.getKey();
+			expirationMap.remove(id);
+			Endpoint endpoint = endpointMap.remove(id);
+			if (endpoint != null)
+			{
+				try { endpoint.close(); } catch (Throwable ignored) {}
+				count++;
+			}
+		}
+		
+		logger.info("Endpoint tracker shutdown, " + count + " endpoints closed");
 	}
 
 	/**
@@ -130,10 +150,7 @@ public class EndpointTracker implements InitializingBean, DisposableBean
 	{
 		expirationMap.remove(id);
 		Endpoint endpoint = endpointMap.remove(id);
-		if (endpoint != null)
-		{
-			try { endpoint.close(); } catch (Throwable ignored) {}
-		}
+		try { if (endpoint != null) endpoint.close(); } catch (Throwable ignored) {}
 	}
 
 	/**
@@ -193,7 +210,7 @@ public class EndpointTracker implements InitializingBean, DisposableBean
 							Endpoint endpoint = endpointMap.remove(id);
 							if (endpoint != null)
 							{
-								log.info("Closing stale connection with ID " + id);
+								logger.info("Closing stale connection with ID " + id);
 								try { endpoint.close(); } catch (Throwable ignored) {}
 							}							
 						}
@@ -205,7 +222,7 @@ public class EndpointTracker implements InitializingBean, DisposableBean
 				catch (Throwable t)
 				{
 					// defensive catch to avoid thread death
-					log.error("Caught exception", t);
+					logger.error("Caught exception", t);
 				}			
 			}
 		}

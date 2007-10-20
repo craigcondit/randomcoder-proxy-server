@@ -18,6 +18,11 @@
 		<property name="commandClass" value="com.randomcoder.proxy.server.IdCommand" />
 		<property name="endpointTracker" ref="endpointTracker" />
 	</bean>
+
+	<bean id="disconnectController" class="com.randomcoder.proxy.server.DisconnectController">
+		<property name="commandClass" value="com.randomcoder.proxy.server.IdCommand" />
+		<property name="endpointTracker" ref="endpointTracker" />
+	</bean>
 		
 	<bean id="handlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
 		<property name="alwaysUseFullPath" value="true" />
@@ -25,6 +30,7 @@
 			<props>
 				<prop key="/connect">connectController</prop>
 				<prop key="/ping">pingController</prop>
+				<prop key="/disconnect">disconnectController</prop>
 			</props>
 		</property>
 	</bean>
