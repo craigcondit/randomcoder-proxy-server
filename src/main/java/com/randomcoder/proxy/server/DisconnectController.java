@@ -78,8 +78,7 @@ public class DisconnectController extends AbstractCommandController
 		
 		endpointTracker.remove(form.getId());
 		
-		if (logger.isDebugEnabled())
-			logger.debug("Disconnect [" + form.getId() + "]");
+		logger.info("Disconnect [" + form.getId() + "]");
 		
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.setContentType("text/plain");
