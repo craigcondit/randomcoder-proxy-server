@@ -13,13 +13,15 @@ public class ProxyClient
 	private final String remoteHost;
 	private final int remotePort;
 	private final int localPort;
-
+	private final Authenticator auth;
+	
 	public ProxyClient(String proxyUrl, String remoteHost, int remotePort, int localPort)
 	{
 		this.proxyUrl = proxyUrl;
 		this.remoteHost = remoteHost;
 		this.remotePort = remotePort;
 		this.localPort = localPort;
+		auth = new SwingAuthenticator();
 	}
 	
 	public void listen() throws IOException
@@ -28,17 +30,28 @@ public class ProxyClient
 		
 		logger.debug("Listening for connections");
 
+		Socket socket = null;
+		
 		while (true)
 		{
-			Socket socket = ss.accept();
-			
-			logger.debug("Connection received");
-			
-			SocketListenerThread listener = new SocketListenerThread(socket, proxyUrl, remoteHost, remotePort);
-			logger.debug("Listener created");
-			
-			listener.start();
-			logger.debug("Listener started");
+			try
+			{
+				socket = ss.accept();
+
+				logger.debug("Connection received");
+				
+				SocketListenerThread listener = new SocketListenerThread(socket, proxyUrl, remoteHost, remotePort, auth);
+				logger.debug("Listener created");
+				
+				listener.start();
+				logger.debug("Listener started");
+				socket = null;
+			}
+			catch (Throwable t)
+			{
+				try { if (socket != null) socket.close(); } catch (Throwable ignored) {}
+				logger.error("Caught exception", t);
+			}
 		}
 	}
 	

@@ -5,6 +5,7 @@ import java.net.*;
 import java.text.DecimalFormat;
 
 import org.apache.commons.httpclient.*;
+import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
 
@@ -18,8 +19,9 @@ public class SocketListenerThread extends Thread
 	private final String proxyUrl;
 	private final String host;
 	private final int port;
+	private final Authenticator auth;
 	
-	public SocketListenerThread(Socket socket, String proxyUrl, String host, int port)
+	public SocketListenerThread(Socket socket, String proxyUrl, String host, int port, Authenticator auth)
 	{
 		logger.debug("Socket listener created");
 		logger.debug("  Proxy URL: " + proxyUrl);
@@ -30,9 +32,12 @@ public class SocketListenerThread extends Thread
 		this.proxyUrl = proxyUrl;
 		this.host = host;
 		this.port = port;
-		
+		this.auth = auth;
+				
 		connectionManager = new MultiThreadedHttpConnectionManager();
 		client = new HttpClient(connectionManager);
+		client.getParams().setAuthenticationPreemptive(true);
+		
 	}
 	
 	@Override
@@ -50,6 +55,32 @@ public class SocketListenerThread extends Thread
 		{
 			socketInput = socket.getInputStream();
 			socketOutput = socket.getOutputStream();
+			
+			URL authUrl = new URL(proxyUrl);
+
+			String proxyHost = authUrl.getHost();
+
+			int proxyPort = authUrl.getPort();
+			if (proxyPort < 0)
+			{
+				if ("http".equals(authUrl.getProtocol()))
+					proxyPort = 80;
+				else if ("https".equals(authUrl.getProtocol()))
+					proxyPort = 443;
+			}
+			
+			boolean force = false;
+			
+			do
+			{
+				Credentials creds = auth.getCredentials(proxyUrl, force);
+				if (creds == null)
+					throw new IOException("No credentials supplied");
+
+				client.getState().setCredentials(new AuthScope(proxyHost, proxyPort, AuthScope.ANY_REALM), creds);		
+				force = true;
+			}
+			while (!authenticate());
 			
 			logger.debug("Connecting to remote socket...");
 			connectionId = connect();
@@ -134,6 +165,9 @@ public class SocketListenerThread extends Thread
 			
 			logger.debug("  Proxy output...");
 			try { if (proxyOutput != null) proxyOutput.close(); } catch (Throwable ignored) {}
+	
+			logger.debug("  Socket...");
+			try { if (socket != null) socket.close(); } catch (Throwable ignored) {}
 			
 			logger.debug("  Calling disconnect...");
 			try {	if (connectionId != null)	disconnect(connectionId); } catch (Throwable ignored) {}
@@ -142,6 +176,40 @@ public class SocketListenerThread extends Thread
 			connectionManager.deleteClosedConnections();
 			
 			logger.debug("Socket listener terminated");
+		}
+	}
+	
+	private boolean authenticate() throws IOException
+	{
+		GetMethod get = null;
+		try
+		{
+			get = new GetMethod(proxyUrl + "/auth");		
+			get.setDoAuthentication(true);
+			get.setFollowRedirects(false);
+			get.getParams().setVersion(HttpVersion.HTTP_1_1);
+			get.setRequestHeader("User-Agent", "Randomcoder-Proxy 1.0-SNAPSHOT");
+			
+			int status = client.executeMethod(get);
+			if (status == HttpStatus.SC_OK)
+			{
+				get.getResponseBodyAsString();
+				return true;
+			}
+			
+			if (status == HttpStatus.SC_UNAUTHORIZED)
+			{
+				// bad
+				get.getResponseBodyAsString();
+				return false;
+			}
+			
+			// ugly
+			throw new IOException("Unknown status received from remote proxy: " + status);
+		}
+		finally
+		{
+			try { if (get != null) get.releaseConnection(); } catch (Throwable ignored) {}
 		}
 	}
 	
