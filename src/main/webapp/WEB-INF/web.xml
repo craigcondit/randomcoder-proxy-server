@@ -23,6 +23,11 @@
 
 	<servlet-mapping>
 		<servlet-name>springmvc</servlet-name>        
+		<url-pattern>/auth</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>springmvc</servlet-name>        
 		<url-pattern>/connect</url-pattern>
 	</servlet-mapping>
 
