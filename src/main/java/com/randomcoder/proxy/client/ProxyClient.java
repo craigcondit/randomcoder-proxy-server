@@ -26,7 +26,8 @@ public class ProxyClient
 	
 	public void listen() throws IOException
 	{
-		ServerSocket ss = new ServerSocket(localPort);
+		ServerSocket ss = new ServerSocket();
+		ss.bind(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), localPort));
 		
 		logger.debug("Listening for connections");
 
