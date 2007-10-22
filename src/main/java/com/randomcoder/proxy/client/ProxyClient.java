@@ -129,6 +129,10 @@ public class ProxyClient
 			ProxyClient client = new ProxyClient(proxyUrl, remoteHost, remotePort, localPort);	
 			client.listen();
 			
+			// TODO add system tray icon and menu if supported			
+			// if not, display main configure screen
+			// also, if no tunnels could be created, show configure screen
+			
 //			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 //			
 //			if (SystemTrayWrapper.isSupported())
