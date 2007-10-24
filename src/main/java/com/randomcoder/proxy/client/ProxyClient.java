@@ -5,6 +5,8 @@ import java.net.*;
 
 import org.apache.log4j.Logger;
 
+import com.randomcoder.proxy.client.gui.SwingAuthenticator;
+
 /**
  * HTTP proxy client.
  * 

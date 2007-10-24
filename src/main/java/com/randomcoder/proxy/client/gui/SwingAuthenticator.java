@@ -1,8 +1,10 @@
-package com.randomcoder.proxy.client;
+package com.randomcoder.proxy.client.gui;
 
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.httpclient.*;
+
+import com.randomcoder.proxy.client.Authenticator;
 
 /**
  * Authenticator which displays a Swing password dialog. Credentials are cached

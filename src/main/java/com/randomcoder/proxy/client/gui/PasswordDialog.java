@@ -1,4 +1,4 @@
-package com.randomcoder.proxy.client;
+package com.randomcoder.proxy.client.gui;
 
 import static java.awt.GridBagConstraints.*;
 
