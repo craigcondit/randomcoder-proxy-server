@@ -116,6 +116,7 @@ public class PasswordDialog extends JDialog
 		setTitle("Login required");
 		pack();
 		setResizable(false);
+		setLocationRelativeTo(null);
 	}
 
 	/**
