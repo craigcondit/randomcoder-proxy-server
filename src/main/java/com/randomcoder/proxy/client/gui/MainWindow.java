@@ -1,10 +1,14 @@
 package com.randomcoder.proxy.client.gui;
 
+import static javax.swing.ScrollPaneConstants.*;
+
 import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
+
+import com.randomcoder.apple.eawt.*;
 
 /**
  * Main window for HTTP proxy.
@@ -36,20 +40,61 @@ import javax.swing.table.AbstractTableModel;
  */
 public class MainWindow extends JFrame
 {
+	private static final long serialVersionUID = -7201135008538343607L;
+
 	public MainWindow()
 	{
 		super("HTTP Proxy");
 		
+		boolean mac = Application.isSupported();
+		
 		JMenuBar menuBar = new JMenuBar();
 		
-		JMenu fileMenu = new JMenu("File");
-		fileMenu.setMnemonic(KeyEvent.VK_F);
-		
-		JMenuItem exitItem = new JMenuItem("Exit", KeyEvent.VK_X);
-		exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK));
-		fileMenu.add(exitItem);
-		
-		menuBar.add(fileMenu);
+		if (mac)
+		{
+			System.setProperty("apple.laf.useScreenMenuBar", "true");
+			Application.getApplication().addApplicationListener(new ApplicationAdapter()
+			{
+
+				@Override
+				public void handleOpenApplication(ApplicationEvent event)
+				{
+					System.err.println("open");
+				}
+
+				@Override
+				public void handleQuit(ApplicationEvent event)
+				{
+					handleExit();
+					event.setHandled(true);
+				}
+
+				@Override
+				public void handleReOpenApplication(ApplicationEvent event)
+				{
+					System.err.println("reopen");
+				}
+				
+			});
+		}
+		else
+		{
+			JMenu fileMenu = new JMenu("File");
+			fileMenu.setMnemonic(KeyEvent.VK_F);
+			
+			JMenuItem exitItem = new JMenuItem("Exit", KeyEvent.VK_X);
+			exitItem.addActionListener(new ActionListener()
+			{
+				public void actionPerformed(ActionEvent e)
+				{
+					handleExit();
+				}
+			});
+			exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK));
+			fileMenu.add(exitItem);
+			
+			menuBar.add(fileMenu);
+		}
 		
 		setJMenuBar(menuBar);
 		
@@ -64,7 +109,7 @@ public class MainWindow extends JFrame
 		connList.setMinimumSize(new Dimension(250, 1));
 		connList.setMinimumSize(new Dimension(250, 1));
 		
-		JScrollPane connListPane = new JScrollPane(connList, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane connListPane = new JScrollPane(connList, VERTICAL_SCROLLBAR_ALWAYS, HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		content.add(connListPane, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets(12, 12, 0, 11), 0, 0));
 		
 		ProxyTableModel model = new ProxyTableModel();
@@ -80,7 +125,7 @@ public class MainWindow extends JFrame
 		connTable.getColumnModel().getColumn(5).setPreferredWidth(100);
 		connTable.getColumnModel().getColumn(6).setPreferredWidth(100);
 		
-		JScrollPane pane = new JScrollPane(connTable, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane pane = new JScrollPane(connTable, VERTICAL_SCROLLBAR_ALWAYS, HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		pane.setPreferredSize(new Dimension((int) connTable.getPreferredScrollableViewportSize().getWidth(), 200));
 		content.add(pane, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets(12, 12, 0, 11), 0, 0));
 		
@@ -115,7 +160,7 @@ public class MainWindow extends JFrame
 		
 		pack();
 		setLocationRelativeTo(null);
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 	}
 	
 	public static void main(String[] args)
@@ -133,18 +178,25 @@ public class MainWindow extends JFrame
 		}
 	}
 	
-	private void handleAdd()
+	protected void handleAdd()
 	{
-		
+		System.err.println("add");
 	}
 	
-	private void handleEdit()
+	protected void handleEdit()
 	{
-		
+		System.err.println("edit");
 	}
 	
-	private final class ProxyTableModel extends AbstractTableModel
+	protected void handleExit()
 	{
+		System.err.println("exit");
+	}
+	
+	protected final class ProxyTableModel extends AbstractTableModel
+	{
+		private static final long serialVersionUID = -8408408044928354604L;
+
 		@Override
 		public String getColumnName(int column)
 		{
@@ -188,8 +240,10 @@ public class MainWindow extends JFrame
 		}
 	}
 	
-	private final class ProxyListModel extends AbstractListModel
+	protected final class ProxyListModel extends AbstractListModel
 	{
+		private static final long serialVersionUID = 1393206449025185349L;
+
 		public Object getElementAt(int index)
 		{
 			return "Item #" + index;
