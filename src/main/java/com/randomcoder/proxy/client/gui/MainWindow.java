@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
+import javax.swing.event.*;
 
 import com.randomcoder.apple.eawt.*;
 
@@ -42,9 +42,21 @@ public class MainWindow extends JFrame
 {
 	private static final long serialVersionUID = -7201135008538343607L;
 
+	private final JTextField connectionName;
+	private final JTextField proxyUrl;
+	private final JTextField username;
+	private final JPasswordField password;
+	private final JCheckBox savePassword;
+	private final JTextField remoteHost;
+	private final JTextField remotePort;
+	private final JTextField localPort;
+	private final JList connectionList;
+	private final JButton addButton;
+	private final JButton deleteButton;
+	
 	public MainWindow()
 	{
-		super("HTTP Proxy");
+		super("Preferences");
 		
 		boolean mac = Application.isSupported();
 		
@@ -105,33 +117,134 @@ public class MainWindow extends JFrame
 		
 		ProxyListModel listModel = new ProxyListModel();
 		
-		JList connList = new JList(listModel);
-		connList.setMinimumSize(new Dimension(250, 1));
-		connList.setMinimumSize(new Dimension(250, 1));
+		connectionList = new JList(listModel);
+		connectionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
-		JScrollPane connListPane = new JScrollPane(connList, VERTICAL_SCROLLBAR_ALWAYS, HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		content.add(connListPane, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets(12, 12, 0, 11), 0, 0));
+		ProxyListCellRenderer cellRenderer = new ProxyListCellRenderer();
+		connectionList.setCellRenderer(cellRenderer);
+		connectionList.setFocusable(false);
 		
-		ProxyTableModel model = new ProxyTableModel();
+		connectionList.addListSelectionListener(new ListSelectionListener()
+		{
+			public void valueChanged(ListSelectionEvent e)
+			{
+				if (e.getValueIsAdjusting())
+				{
+					System.err.println("adjusting");
+					return;
+				}
+				
+				System.err.println("Stopped");
+				
+				deleteButton.setEnabled(connectionList.getSelectedIndex() >= 0);
+			}
+			
+		});
 		
-		JTable connTable = new JTable(model);
-		connTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		JScrollPane connListPane = new JScrollPane(
+				connectionList, VERTICAL_SCROLLBAR_ALWAYS, HORIZONTAL_SCROLLBAR_NEVER);
+
+		connListPane.setMinimumSize(new Dimension(150, 1));
+		connListPane.setPreferredSize(new Dimension(150, 1));
+		connListPane.setFocusable(false);
 		
-		connTable.getColumnModel().getColumn(0).setPreferredWidth(100);
-		connTable.getColumnModel().getColumn(1).setPreferredWidth(100);
-		connTable.getColumnModel().getColumn(2).setPreferredWidth(100);
-		connTable.getColumnModel().getColumn(3).setPreferredWidth(100);
-		connTable.getColumnModel().getColumn(4).setPreferredWidth(100);
-		connTable.getColumnModel().getColumn(5).setPreferredWidth(100);
-		connTable.getColumnModel().getColumn(6).setPreferredWidth(100);
+		content.add(connListPane, new GridBagConstraints(
+				0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH,
+				new Insets(12, 12, 0, 11), 0, 0));
+
+		JPanel prefPanel = new JPanel(new GridBagLayout());
 		
-		JScrollPane pane = new JScrollPane(connTable, VERTICAL_SCROLLBAR_ALWAYS, HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		pane.setPreferredSize(new Dimension((int) connTable.getPreferredScrollableViewportSize().getWidth(), 200));
-		content.add(pane, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets(12, 12, 0, 11), 0, 0));
+		prefPanel.add(new JLabel("Connection name:"), new GridBagConstraints(
+				0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE,
+				new Insets(0, 12, 18, 11), 0, 0));
+
+		connectionName = new JTextField(20);
+		connectionName.setEnabled(false);
+		
+		prefPanel.add(connectionName, new GridBagConstraints(
+				1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(0, 0, 17, 0), 0, 0));
+
+		prefPanel.add(new JLabel("Proxy URL:"), new GridBagConstraints(
+				0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE,
+				new Insets(0, 12, 12, 11), 0, 0));
+
+		proxyUrl = new JTextField(20);
+		proxyUrl.setEnabled(false);
+		
+		prefPanel.add(proxyUrl, new GridBagConstraints(
+				1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(0, 0, 11, 0), 0, 0));
+
+		prefPanel.add(new JLabel("Username:"), new GridBagConstraints(
+				0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE,
+				new Insets(0, 12, 12, 11), 0, 0));
+
+		username = new JTextField(10);
+		username.setEnabled(false);
+		
+		prefPanel.add(username, new GridBagConstraints(
+				1, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(0, 0, 11, 0), 0, 0));
+		
+		prefPanel.add(new JLabel("Password:"), new GridBagConstraints(
+				0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE,
+				new Insets(0, 12, 12, 11), 0, 0));
+
+		password = new JPasswordField(10);
+		password.setEnabled(false);
+		
+		prefPanel.add(password, new GridBagConstraints(
+				1, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(0, 0, 11, 0), 0, 0));
+
+		savePassword = new JCheckBox("Save password");
+		savePassword.setEnabled(false);
+		
+		prefPanel.add(savePassword, new GridBagConstraints(
+				1, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(0, 0, 12, 0), 0, 0));
+
+		prefPanel.add(new JLabel("Remote host:"), new GridBagConstraints(
+				0, 5, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE,
+				new Insets(0, 12, 12, 11), 0, 0));
+
+		remoteHost = new JTextField(15);
+		remoteHost.setEnabled(false);
+		
+		prefPanel.add(remoteHost, new GridBagConstraints(
+				1, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(0, 0, 11, 0), 0, 0));
+		
+		prefPanel.add(new JLabel("Remote port:"), new GridBagConstraints(
+				0, 6, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE,
+				new Insets(0, 12, 12, 11), 0, 0));
+
+		remotePort = new JTextField(5);
+		remotePort.setEnabled(false);
+
+		prefPanel.add(remotePort, new GridBagConstraints(
+				1, 6, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(0, 0, 11, 0), 0, 0));
+		
+		prefPanel.add(new JLabel("Local port:"), new GridBagConstraints(
+				0, 7, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE,
+				new Insets(0, 12, 0, 11), 0, 0));
+
+		localPort = new JTextField(5);
+		localPort.setEnabled(false);
+		
+		prefPanel.add(localPort, new GridBagConstraints(
+				1, 7, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(0, 0, 0, 0), 0, 0));
+		
+		content.add(prefPanel, new GridBagConstraints(
+				1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE,
+				new Insets(12, 0, 0, 11), 0, 0));
 		
 		JPanel buttonBar = new JPanel(new GridBagLayout());
 		
-		JButton addButton = new JButton(new ImageIcon(getClass().getResource("/plus.png")));
+		addButton = new JButton(new ImageIcon(getClass().getResource("/plus.png")));
 		addButton.setMargin(new Insets(0,0,0,0));
 		addButton.setFocusable(false);
 		addButton.addActionListener(new ActionListener()
@@ -141,9 +254,11 @@ public class MainWindow extends JFrame
 				handleAdd();
 			}
 		});
-		buttonBar.add(addButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 5), 0, 0));
+		buttonBar.add(addButton, new GridBagConstraints(
+				0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(0, 0, 0, 5), 0, 0));
 		
-		JButton deleteButton = new JButton(new ImageIcon(getClass().getResource("/minus.png")));
+		deleteButton = new JButton(new ImageIcon(getClass().getResource("/minus.png")));
 		deleteButton.setMargin(new Insets(0,0,0,0));
 		deleteButton.setFocusable(false);
 		deleteButton.setEnabled(false);
@@ -151,14 +266,52 @@ public class MainWindow extends JFrame
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				handleEdit();
+				handleDelete();
 			}
 		});
-		buttonBar.add(deleteButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 5), 0, 0));
+		buttonBar.add(deleteButton, new GridBagConstraints(
+				1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(0, 0, 0, 5), 0, 0));
 		
-		content.add(buttonBar, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(11, 12, 11, 11), 0, 0));
+		content.add(buttonBar, new GridBagConstraints(
+				0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(11, 12, 11, 11), 0, 0));
 		
 		pack();
+		
+		connListPane.setMinimumSize(connListPane.getSize());		
+		
+		prefPanel.setMinimumSize(prefPanel.getSize());
+		setMinimumSize(getSize());
+
+		setResizable(false);
+		
+		// add a resizer
+		addComponentListener(new ComponentAdapter()
+		{
+			@Override
+			public void componentResized(ComponentEvent event)
+			{
+				
+				JFrame src = (JFrame) event.getSource();				
+				Dimension min = getMinimumSize();
+				Dimension curr = src.getSize();
+	
+				double w = curr.getWidth();
+				double h = curr.getHeight();
+				
+				if (curr.getWidth() < min.getWidth())
+					w = min.getWidth();
+				
+				if (curr.getHeight() < min.getHeight())
+					h = min.getHeight();
+	
+				final Dimension resized = new Dimension((int) w, (int) h);
+				
+				setSize(resized);
+			}			
+		});
+		
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 	}
@@ -183,61 +336,19 @@ public class MainWindow extends JFrame
 		System.err.println("add");
 	}
 	
-	protected void handleEdit()
+	protected void handleDelete()
 	{
-		System.err.println("edit");
+		int index = connectionList.getSelectedIndex();
+		if (index < 0)
+			return;
+		
+		System.err.println("delete");
+		JOptionPane.showConfirmDialog(this, "Are you sure?");
 	}
 	
 	protected void handleExit()
 	{
 		System.err.println("exit");
-	}
-	
-	protected final class ProxyTableModel extends AbstractTableModel
-	{
-		private static final long serialVersionUID = -8408408044928354604L;
-
-		@Override
-		public String getColumnName(int column)
-		{
-			switch (column)
-			{
-				case 0:
-					return "Proxy URL";
-				case 1:
-					return "Username";
-				case 2:
-					return "Password";
-				case 3:
-					return "Remote host";
-				case 4:
-					return "Remote port";
-				case 5:
-					return "Local port";
-				case 6:
-					return "Status";
-				default:
-					return null;
-			}
-		}
-
-		public int getColumnCount()
-		{
-			// TODO Auto-generated method stub
-			return 7;
-		}
-
-		public int getRowCount()
-		{
-			// TODO Auto-generated method stub
-			return 3;
-		}
-
-		public Object getValueAt(int rowIndex, int columnIndex)
-		{
-			// TODO Auto-generated method stub
-			return "test";
-		}
 	}
 	
 	protected final class ProxyListModel extends AbstractListModel
@@ -246,12 +357,30 @@ public class MainWindow extends JFrame
 
 		public Object getElementAt(int index)
 		{
-			return "Item #" + index;
+			return "Really really long Item #" + index;
 		}
 
 		public int getSize()
 		{
 			return 5;
 		}
+	}
+	
+	protected final class ProxyListCellRenderer extends DefaultListCellRenderer
+	{
+		private static final long serialVersionUID = 5013801825421704387L;
+
+		@Override
+		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
+		{
+			JComponent comp = (JComponent) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+
+			if (index % 2 == 0)
+				comp.setFont(comp.getFont().deriveFont(Font.BOLD));
+
+			comp.setToolTipText(value.toString());
+			
+			return comp;
+		}		
 	}
 }
