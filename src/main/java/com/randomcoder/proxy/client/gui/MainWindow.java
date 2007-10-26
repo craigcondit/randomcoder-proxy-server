@@ -245,7 +245,7 @@ public class MainWindow extends JFrame
 		JPanel buttonBar = new JPanel(new GridBagLayout());
 		
 		addButton = new JButton(new ImageIcon(getClass().getResource("/plus.png")));
-		addButton.setMargin(new Insets(0,0,0,0));
+		addButton.setMargin(new Insets(2,2,2,2));
 		addButton.setFocusable(false);
 		addButton.addActionListener(new ActionListener()
 		{
@@ -259,7 +259,7 @@ public class MainWindow extends JFrame
 				new Insets(0, 0, 0, 5), 0, 0));
 		
 		deleteButton = new JButton(new ImageIcon(getClass().getResource("/minus.png")));
-		deleteButton.setMargin(new Insets(0,0,0,0));
+		deleteButton.setMargin(new Insets(2,2,2,2));
 		deleteButton.setFocusable(false);
 		deleteButton.setEnabled(false);
 		deleteButton.addActionListener(new ActionListener()
