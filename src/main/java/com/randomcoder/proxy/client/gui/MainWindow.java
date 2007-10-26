@@ -9,6 +9,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import com.randomcoder.apple.eawt.*;
+import com.randomcoder.systray.*;
 
 /**
  * Main window for HTTP proxy.
@@ -53,6 +54,7 @@ public class MainWindow extends JFrame
 	private final JList connectionList;
 	private final JButton addButton;
 	private final JButton deleteButton;
+	private final AboutWindow aboutWindow;
 	
 	public MainWindow()
 	{
@@ -106,11 +108,26 @@ public class MainWindow extends JFrame
 			fileMenu.add(exitItem);
 			
 			menuBar.add(fileMenu);
+			
+			JMenu helpMenu = new JMenu("Help");
+			helpMenu.setMnemonic(KeyEvent.VK_H);
+			
+			JMenuItem aboutItem = new JMenuItem("About", KeyEvent.VK_A);
+			aboutItem.addActionListener(new ActionListener()
+			{
+				public void actionPerformed(ActionEvent e)
+				{
+					aboutWindow.setVisible(true);
+				}
+			});
+			helpMenu.add(aboutItem);
+			
+			menuBar.add(helpMenu);			
 		}
 		
 		setJMenuBar(menuBar);
 		
-		setIconImage(new ImageIcon(getClass().getResource("/socket.png")).getImage());
+		setIconImage(new ImageIcon(getClass().getResource("/icon-512x512.png")).getImage());
 		
 		Container content = getContentPane();
 		content.setLayout(new GridBagLayout());
@@ -311,9 +328,105 @@ public class MainWindow extends JFrame
 				setSize(resized);
 			}			
 		});
+
+		aboutWindow = new AboutWindow();
 		
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		
+		
+		// TEST CODE BELOW
+		
+		if (SystemTrayWrapper.isSupported())
+		{
+			// system tray available
+			SystemTrayWrapper tray = SystemTrayWrapper.getSystemTray();
+			
+			Dimension size = tray.getTrayIconSize();
+			int w = (int) size.getWidth();
+			
+			String filename = "/tray-icon-256x256.png";
+			if (w <= 16)
+				filename = "/tray-icon-16x16.png";
+			else if (w <= 32)
+				filename = "/tray-icon-32x32.png";
+			else if (w <= 64)
+				filename = "/tray-icon-64x64.png";
+			else if (w <= 128)
+				filename = "/tray-icon-128x128.png";
+			
+			ImageIcon trayImage = new ImageIcon(getClass().getResource(filename));
+			
+			PopupMenu popup = new PopupMenu();
+			
+			popup.setFont(new JMenuItem("test").getFont());
+			
+			MenuItem open = new MenuItem("Open");
+			open.addActionListener(new ActionListener()
+			{
+				public void actionPerformed(ActionEvent e)
+				{
+					// open main window
+					setVisible(true);
+				}
+			});				
+			open.setFont(popup.getFont().deriveFont(Font.BOLD));
+			popup.add(open);
+
+			MenuItem configure = new MenuItem("Preferences");
+			configure.addActionListener(new ActionListener()
+			{
+				public void actionPerformed(ActionEvent e)
+				{
+					// TODO open configuration screen
+					System.err.println("Preferences chosen");
+				}
+			});				
+			popup.add(configure);
+			
+			popup.addSeparator();
+			
+			MenuItem about = new MenuItem("About");
+			about.addActionListener(new ActionListener()
+			{
+				public void actionPerformed(ActionEvent e)
+				{
+					aboutWindow.setVisible(true);
+				}
+			});
+			popup.add(about);
+			
+			popup.addSeparator();
+			
+			MenuItem exit = new MenuItem("Exit");
+			exit.addActionListener(new ActionListener()
+			{
+				public void actionPerformed(ActionEvent e)
+				{
+					System.exit(0);
+				}
+			});
+			popup.add(exit);
+			
+			TrayIconWrapper icon = new TrayIconWrapper(trayImage.getImage(), "Disconnected", popup);
+			icon.addActionListener(new ActionListener()
+			{
+				public void actionPerformed(ActionEvent e)
+				{
+					// open main window
+					setVisible(true);
+				}
+			});
+			icon.setImageAutoSize(true);
+			try
+			{
+				tray.add(icon);
+			}
+			catch (AWTException ignored)
+			{
+			}
+		}
+		
 	}
 	
 	public static void main(String[] args)
