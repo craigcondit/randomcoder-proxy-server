@@ -73,23 +73,36 @@ public class MainWindow extends JFrame
 				@Override
 				public void handleOpenApplication(ApplicationEvent event)
 				{
-					System.err.println("open");
+					setVisible(true);
 				}
 
 				@Override
 				public void handleQuit(ApplicationEvent event)
 				{
-					handleExit();
-					event.setHandled(true);
+					event.setHandled(handleExit());
 				}
 
 				@Override
 				public void handleReOpenApplication(ApplicationEvent event)
 				{
-					System.err.println("reopen");
+					setVisible(true);
 				}
 				
 			});
+			
+			JMenu windowMenu = new JMenu("Window");
+			
+			JMenuItem statusItem = new JMenuItem("Status");
+			statusItem.addActionListener(new ActionListener()
+			{
+				public void actionPerformed(ActionEvent e)
+				{
+					setVisible(true);
+				}
+			});
+			windowMenu.add(statusItem);
+			
+			menuBar.add(windowMenu);			
 		}
 		else
 		{
@@ -101,7 +114,8 @@ public class MainWindow extends JFrame
 			{
 				public void actionPerformed(ActionEvent e)
 				{
-					handleExit();
+					if (handleExit())
+						System.exit(0);
 				}
 			});
 			exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK));
@@ -459,9 +473,10 @@ public class MainWindow extends JFrame
 		JOptionPane.showConfirmDialog(this, "Are you sure?");
 	}
 	
-	protected void handleExit()
+	protected boolean handleExit()
 	{
 		System.err.println("exit");
+		return true;
 	}
 	
 	protected final class ProxyListModel extends AbstractListModel
