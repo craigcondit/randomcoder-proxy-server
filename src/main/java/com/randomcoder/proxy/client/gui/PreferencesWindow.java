@@ -7,12 +7,15 @@ import java.awt.event.*;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
+import java.util.prefs.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
+import com.randomcoder.proxy.client.ProxyClient;
 import com.randomcoder.proxy.client.config.ProxyConfiguration;
 import com.randomcoder.proxy.client.validation.ValidationResult;
 
@@ -47,6 +50,8 @@ import com.randomcoder.proxy.client.validation.ValidationResult;
 public class PreferencesWindow extends JFrame
 {
 	private static final long serialVersionUID = 3758601335874262188L;
+
+	private static final Logger logger = Logger.getLogger(PreferencesWindow.class);
 	
 	private final JTextField connectionName;
 	private final JTextField proxyUrl;
@@ -79,6 +84,15 @@ public class PreferencesWindow extends JFrame
 				if (!validateForm(true))
 					return;
 								
+				try
+				{
+					saveSettings();
+				}
+				catch (BackingStoreException bse)
+				{
+					// can't really do anything about this...
+					logger.error("Can't save prefs", bse);
+				}
 				setVisible(false);
 			}			
 		});
@@ -323,23 +337,94 @@ public class PreferencesWindow extends JFrame
 		setLocationRelativeTo(null);
 		pack();
 		
-		loadSettings();
+		try
+		{
+			loadSettings();
+		}
+		catch (BackingStoreException bse)
+		{
+			logger.error("Can't load settings", bse);
+		}
 	}
 	
-	public void loadSettings()
+	public void loadSettings() throws BackingStoreException
 	{
-		// TODO stub
+		List<ProxyConfiguration> configs = new ArrayList<ProxyConfiguration>();
+		
+		Preferences prefs = Preferences.userNodeForPackage(ProxyClient.class);
+		
+		// remove existing preferences
+		for (String child : prefs.childrenNames())
+		{
+			Preferences sub = prefs.node(child);
+			
+			ProxyConfiguration config = new ProxyConfiguration();
+			
+			config.setName(child);
+			config.setProxyUrl(sub.get("ProxyUrl", null));
+			config.setUsername(sub.get("Username", null));
+			config.setRemoteHost(sub.get("RemoteHost", null));
+			config.setRemotePort(sub.getInt("RemotePort", -1));
+			config.setLocalPort(sub.getInt("LocalPort", -1));
+			
+			configs.add(config);
+		}
+		Collections.sort(configs);
+		
 		listModel.clear();
 		current = null;
 		original = null;
 		dirty = false;
 		currentIndex = -1;
 		handleEdit(false);
+		
+		listModel.setData(configs);
 	}
 	
-	public void saveSettings()
+	public void saveSettings() throws BackingStoreException
 	{
-		// TODO stub
+		List<ProxyConfiguration> configs = new ArrayList<ProxyConfiguration>(listModel.getData());
+		Collections.sort(configs);
+
+		Preferences prefs = Preferences.userNodeForPackage(ProxyClient.class);
+		
+		// remove existing preferences
+		for (String child : prefs.childrenNames())
+			prefs.node(child).removeNode();
+		
+		for (int i = 0; i < configs.size(); i++)
+		{
+			ProxyConfiguration config = configs.get(i);
+			
+			String name = config.getName();
+			if (name == null)
+				continue;
+			
+			Preferences child = prefs.node(name);
+			
+			String url = config.getProxyUrl();
+			if (url != null)
+				child.put("ProxyUrl", url);
+
+			String user = config.getUsername();
+			if (user != null)
+				child.put("Username", user);
+			
+			String rhost = config.getRemoteHost();
+			if (rhost != null)
+				child.put("RemoteHost", rhost);
+			
+			Integer rport = config.getRemotePort();
+			if (rport != null)
+				child.putInt("RemotePort", rport);
+			
+			Integer lport = config.getLocalPort();
+			if (lport != null)
+				child.putInt("LocalPort", lport);
+			
+			child.flush();
+		}
+		prefs.flush();
 	}
 	
 	protected void handleAdd()
@@ -448,7 +533,7 @@ public class PreferencesWindow extends JFrame
 		if (dirty && test != null && currentIndex >= 0)
 		{			
 			// perform validation
-			List<ValidationResult> results = test.validate();
+			List<ValidationResult> results = test.validate(listModel.getData());
 			
 			if (results.size() > 0)
 			{
@@ -509,7 +594,7 @@ public class PreferencesWindow extends JFrame
 	
 	protected final class ProxyListModel extends AbstractListModel
 	{
-		private final List<ProxyConfiguration> data = new ArrayList<ProxyConfiguration>();
+		private List<ProxyConfiguration> data = new ArrayList<ProxyConfiguration>();
 
 		private static final long serialVersionUID = 1393206449025185349L;
 		
@@ -529,6 +614,18 @@ public class PreferencesWindow extends JFrame
 		public void clear()
 		{
 			data.clear();
+		}
+		
+		public void setData(List<ProxyConfiguration> data)
+		{
+			fireIntervalRemoved(this, 0, this.data.size());
+			this.data = data;
+			fireIntervalAdded(this, 0, this.data.size());
+		}
+		
+		public List<ProxyConfiguration> getData()
+		{
+			return data;
 		}
 		
 		public int addNew()

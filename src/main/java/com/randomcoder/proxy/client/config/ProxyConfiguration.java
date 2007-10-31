@@ -219,14 +219,29 @@ public class ProxyConfiguration implements Serializable, Comparable<ProxyConfigu
 	
 	/**
 	 * Validates this object.
+	 * 
+	 * @param peers
+	 *            list of other objects which are also loaded
 	 * @return list of validation results
 	 */
-	public List<ValidationResult> validate()
+	public List<ValidationResult> validate(List<ProxyConfiguration> peers)
 	{
 		List<ValidationResult> results = new ArrayList<ValidationResult>();
 		
 		if (name == null)
 			results.add(new ValidationResult("name", "Connection name is required."));
+		else
+		{
+			for (ProxyConfiguration peer : peers)
+			{
+				if ((peer != this) && name.equals(peer.getName()))
+				{
+					results.add(new ValidationResult("name", "Another connection with this name already exists."));
+					break;
+				}
+			}
+		}
+		
 		
 		if (proxyUrl == null)
 			results.add(new ValidationResult("proxyUrl", "Proxy URL is required."));
