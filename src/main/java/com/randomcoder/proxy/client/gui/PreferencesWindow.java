@@ -4,13 +4,17 @@ import static javax.swing.ScrollPaneConstants.*;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.*;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.randomcoder.proxy.client.config.ProxyConfiguration;
+import com.randomcoder.proxy.client.validation.ValidationResult;
 
 /**
  * Main window for HTTP proxy.
@@ -48,7 +52,6 @@ public class PreferencesWindow extends JFrame
 	private final JTextField proxyUrl;
 	private final JTextField username;
 	private final JPasswordField password;
-	private final JCheckBox savePassword;
 	private final JTextField remoteHost;
 	private final JTextField remotePort;
 	private final JTextField localPort;
@@ -57,7 +60,9 @@ public class PreferencesWindow extends JFrame
 	private final JButton deleteButton;
 	private final ProxyListModel listModel;
 	
+	private boolean dirty = false;
 	private ProxyConfiguration current;
+	private int currentIndex = -1;
 	
 	public PreferencesWindow()
 	{
@@ -87,7 +92,8 @@ public class PreferencesWindow extends JFrame
 				
 				deleteButton.setEnabled(connectionList.getSelectedIndex() >= 0);
 				
-				// TODO attempt to change the editing mode
+				// change the currently active item
+				handleEdit();
 			}
 		});
 
@@ -111,9 +117,18 @@ public class PreferencesWindow extends JFrame
 			GridBagConstraints.EAST, GridBagConstraints.NONE,
 			new Insets(0, 12, 18, 11), 0, 0));
 
-		connectionName = new JTextField(20);
+		connectionName = new JTextField(25);
 		connectionName.setEnabled(false);
 		connectionName.getDocument().addDocumentListener(new ProxyDocumentListener(connectionName));
+		connectionName.addFocusListener(new FocusAdapter()
+		{
+			@Override
+			public void focusLost(FocusEvent e)
+			{
+				if (current != null)
+					connectionName.setText(current.getName());
+			}
+		});
 		
 		prefPanel.add(connectionName, new GridBagConstraints(
 			1, 0, 1, 1, 0.0, 0.0,
@@ -125,8 +140,18 @@ public class PreferencesWindow extends JFrame
 			GridBagConstraints.EAST, GridBagConstraints.NONE,
 			new Insets(0, 12, 12, 11), 0, 0));
 
-		proxyUrl = new JTextField(20);
+		proxyUrl = new JTextField(25);
 		proxyUrl.setEnabled(false);
+		proxyUrl.getDocument().addDocumentListener(new ProxyDocumentListener(proxyUrl));
+		proxyUrl.addFocusListener(new FocusAdapter()
+		{
+			@Override
+			public void focusLost(FocusEvent e)
+			{
+				if (current != null)
+					proxyUrl.setText(current.getProxyUrl());
+			}
+		});
 		
 		prefPanel.add(proxyUrl, new GridBagConstraints(
 			1, 1, 1, 1, 0.0, 0.0,
@@ -138,8 +163,9 @@ public class PreferencesWindow extends JFrame
 			GridBagConstraints.EAST, GridBagConstraints.NONE,
 			new Insets(0, 12, 12, 11), 0, 0));
 
-		username = new JTextField(10);
+		username = new JTextField(15);
 		username.setEnabled(false);
+		username.getDocument().addDocumentListener(new ProxyDocumentListener(username));
 		
 		prefPanel.add(username, new GridBagConstraints(
 			1, 2, 1, 1, 0.0, 0.0,
@@ -151,58 +177,87 @@ public class PreferencesWindow extends JFrame
 			GridBagConstraints.EAST, GridBagConstraints.NONE,
 			new Insets(0, 12, 12, 11), 0, 0));
 
-		password = new JPasswordField(10);
+		password = new JPasswordField(15);
 		password.setEnabled(false);
+		password.getDocument().addDocumentListener(new ProxyDocumentListener(password));
 		
 		prefPanel.add(password, new GridBagConstraints(
 			1, 3, 1, 1, 0.0, 0.0,
 			GridBagConstraints.WEST, GridBagConstraints.NONE,
 			new Insets(0, 0, 11, 0), 0, 0));
 
-		savePassword = new JCheckBox("Save password");
-		savePassword.setEnabled(false);
-		
-		prefPanel.add(savePassword, new GridBagConstraints(
-			1, 4, 1, 1, 0.0, 0.0,
-			GridBagConstraints.WEST, GridBagConstraints.NONE,
-			new Insets(0, 0, 12, 0), 0, 0));
-
 		prefPanel.add(new JLabel("Remote host:"), new GridBagConstraints(
-			0, 5, 1, 1, 0.0, 0.0,
+			0, 4, 1, 1, 0.0, 0.0,
 			GridBagConstraints.EAST, GridBagConstraints.NONE,
 			new Insets(0, 12, 12, 11), 0, 0));
 
-		remoteHost = new JTextField(15);
+		remoteHost = new JTextField(20);
 		remoteHost.setEnabled(false);
+		remoteHost.getDocument().addDocumentListener(new ProxyDocumentListener(remoteHost));
+		remoteHost.addFocusListener(new FocusAdapter()
+		{
+			@Override
+			public void focusLost(FocusEvent e)
+			{
+				if (current != null)
+					remoteHost.setText(current.getRemoteHost());
+			}
+		});
 		
 		prefPanel.add(remoteHost, new GridBagConstraints(
-			1, 5, 1, 1, 0.0, 0.0,
+			1, 4, 1, 1, 0.0, 0.0,
 			GridBagConstraints.WEST, GridBagConstraints.NONE,
 			new Insets(0, 0, 11, 0), 0, 0));
 		
 		prefPanel.add(new JLabel("Remote port:"), new GridBagConstraints(
-			0, 6, 1, 1, 0.0, 0.0,
+			0, 5, 1, 1, 0.0, 0.0,
 			GridBagConstraints.EAST, GridBagConstraints.NONE,
 			new Insets(0, 12, 12, 11), 0, 0));
 
 		remotePort = new JTextField(5);
 		remotePort.setEnabled(false);
+		remotePort.getDocument().addDocumentListener(new ProxyDocumentListener(remotePort));
+		remotePort.addFocusListener(new FocusAdapter()
+		{
+			@Override
+			public void focusLost(FocusEvent e)
+			{
+				if (current != null)
+				{
+					Integer value = current.getRemotePort();
+					remotePort.setText(value == null ? null : Integer.toString(value));
+				}
+			}
+		});
 
 		prefPanel.add(remotePort, new GridBagConstraints(
-			1, 6, 1, 1, 0.0, 0.0,
+			1, 5, 1, 1, 0.0, 0.0,
 			GridBagConstraints.WEST, GridBagConstraints.NONE,
 			new Insets(0, 0, 11, 0), 0, 0));
 		
 		prefPanel.add(new JLabel("Local port:"), new GridBagConstraints(
-			0, 7, 1, 1, 0.0, 0.0,
+			0, 6, 1, 1, 0.0, 0.0,
 			GridBagConstraints.EAST, GridBagConstraints.NONE,
 			new Insets(0, 12, 0, 11), 0, 0));
 
 		localPort = new JTextField(5);
 		localPort.setEnabled(false);
+		localPort.getDocument().addDocumentListener(new ProxyDocumentListener(localPort));
+		localPort.addFocusListener(new FocusAdapter()
+		{
+			@Override
+			public void focusLost(FocusEvent e)
+			{
+				if (current != null)
+				{
+					Integer value = current.getLocalPort();
+					localPort.setText(value == null ? null : Integer.toString(value));
+				}
+			}
+		});
 		
 		prefPanel.add(localPort, new GridBagConstraints(
-			1, 7, 1, 1, 0.0, 0.0,
+			1, 6, 1, 1, 0.0, 0.0,
 			GridBagConstraints.WEST, GridBagConstraints.NONE,
 			new Insets(0, 0, 0, 0), 0, 0));
 		
@@ -260,6 +315,10 @@ public class PreferencesWindow extends JFrame
 	{
 		// TODO stub
 		listModel.clear();
+		current = null;
+		dirty = false;
+		currentIndex = -1;
+		handleEdit();
 	}
 	
 	public void saveSettings()
@@ -269,7 +328,14 @@ public class PreferencesWindow extends JFrame
 	
 	protected void handleAdd()
 	{
-		connectionList.setSelectedIndex(listModel.addNew());
+		if (!validateForm())
+			return;
+		
+		current = null;
+		dirty = false;
+		currentIndex = -1;
+		
+		connectionList.setSelectedIndex(listModel.addNew());		
 		handleEdit();
 	}
 	
@@ -281,13 +347,63 @@ public class PreferencesWindow extends JFrame
 		{
 			connectionName.setEnabled(false);
 			connectionName.setText("");
+			
+			proxyUrl.setEnabled(false);
+			proxyUrl.setText("");
+			
+			username.setEnabled(false);
+			username.setText("");
+			
+			password.setEnabled(false);
+			password.setText("");
+			
+			remoteHost.setEnabled(false);
+			remoteHost.setText("");
+			
+			remotePort.setEnabled(false);
+			remotePort.setText("");
+			
+			localPort.setEnabled(false);
+			localPort.setText("");
 		}
 		else
 		{
+			if (!validateForm())
+			{
+				connectionList.setSelectedIndex(currentIndex);
+				current = listModel.getElementAt(currentIndex);
+				return;
+			}
+			
+			dirty = false;
+			currentIndex = connectionList.getSelectedIndex();
+			
+			DecimalFormat df = new DecimalFormat("#####");
+			
 			connectionName.setText(current.getName());
 			connectionName.setEnabled(true);
 			connectionName.setSelectionStart(0);
 			connectionName.setSelectionEnd(connectionName.getText().length());
+			
+			proxyUrl.setText(current.getProxyUrl());
+			proxyUrl.setEnabled(true);
+			
+			username.setText(current.getUsername());			
+			username.setEnabled(true);
+			
+			password.setText(current.getPassword());
+			password.setEnabled(true);
+			
+			remoteHost.setText(current.getRemoteHost());
+			remoteHost.setEnabled(true);
+			
+			Integer currentRemotePort = current.getRemotePort();			
+			remotePort.setText(currentRemotePort == null ? "" : df.format(currentRemotePort));
+			remotePort.setEnabled(true);
+			
+			Integer currentLocalPort = current.getLocalPort();			
+			localPort.setText(currentLocalPort == null ? "" : df.format(currentLocalPort));
+			localPort.setEnabled(true);
 		}
 		
 		connectionName.requestFocusInWindow();
@@ -298,9 +414,46 @@ public class PreferencesWindow extends JFrame
 		int index = connectionList.getSelectedIndex();
 		if (index < 0)
 			return;
+				
+		current = null;
+		currentIndex = -1;
+		dirty = false;
 		
-		System.err.println("delete");
-		JOptionPane.showConfirmDialog(this, "Are you sure?");
+		listModel.deleteCurrent();		
+	}
+	
+	protected boolean validateForm()
+	{
+		ProxyConfiguration test = listModel.getElementAt(currentIndex);
+		
+		if (dirty && test != null && currentIndex >= 0 && currentIndex != connectionList.getSelectedIndex())
+		{			
+			// perform validation
+			List<ValidationResult> results = test.validate();
+			
+			if (results.size() > 0)
+			{
+				// build an error message
+				
+				StringBuilder buf = new StringBuilder();
+				buf.append("The following problems must be corrected:\r\n\r\n");
+				
+				for (ValidationResult result : results)
+				{
+					buf.append(result.getMessage());
+					buf.append("\r\n");
+				}
+				
+				// show a message dialog
+				JOptionPane.showMessageDialog(this, buf.toString(), "Validation errors", JOptionPane.ERROR_MESSAGE);
+				
+				// reset to previously selected value
+				connectionList.setSelectedIndex(currentIndex);
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	protected final class ProxyListModel extends AbstractListModel
@@ -332,6 +485,8 @@ public class PreferencesWindow extends JFrame
 			ProxyConfiguration config = new ProxyConfiguration();
 			config.setName("New Item");
 			data.add(config);
+			dirty = false;
+			
 			fireIntervalAdded(this, data.size() - 1, data.size());
 			return data.size() - 1;			
 		}
@@ -339,6 +494,12 @@ public class PreferencesWindow extends JFrame
 		public void updateCurrent()
 		{
 			fireContentsChanged(this, connectionList.getSelectedIndex(), connectionList.getSelectedIndex());
+		}
+		
+		public void deleteCurrent()
+		{
+			data.remove(connectionList.getSelectedIndex());
+			fireIntervalRemoved(this, connectionList.getSelectedIndex(), connectionList.getSelectedIndex());
 		}
 	}
 	
@@ -351,9 +512,11 @@ public class PreferencesWindow extends JFrame
 		{
 			ProxyConfiguration item = (ProxyConfiguration) value;
 			
-			JComponent comp = (JComponent) super.getListCellRendererComponent(list, item.getName(), index, isSelected, cellHasFocus);
+			String text = StringUtils.trimToEmpty(item.getName());
+			
+			JComponent comp = (JComponent) super.getListCellRendererComponent(list, text + " ", index, isSelected, cellHasFocus);
 
-			comp.setToolTipText(item.getName().toString());
+			comp.setToolTipText(text);
 			
 			return comp;
 		}		
@@ -374,13 +537,60 @@ public class PreferencesWindow extends JFrame
 		
 		private void update(DocumentEvent e)
 		{
+			if (current == null)
+				return;
+			
+			dirty = true;
+			
 			if (target == connectionName)
 			{
 				current.setName(connectionName.getText());
 				listModel.updateCurrent();
 			}
 			
-			// TODO update other components
+			if (target == proxyUrl)
+				current.setProxyUrl(proxyUrl.getText());
+			
+			if (target == username)
+				current.setUsername(username.getText());
+			
+			if (target == password)
+				current.setPassword(new String(password.getPassword()));
+			
+			if (target == remoteHost)
+				current.setRemoteHost(new String(remoteHost.getText()));
+				
+			if (target == remotePort)
+			{
+				Integer port = null;
+				try
+				{
+					port = Integer.parseInt(remotePort.getText());
+					if (port < 0)
+						port = null;
+				}
+				catch (NumberFormatException nfe)
+				{
+					port = null;
+				}
+				current.setRemotePort(port);
+			}
+			
+			if (target == localPort)
+			{
+				Integer port = null;
+				try
+				{
+					port = Integer.parseInt(localPort.getText());
+					if (port < 0)
+						port = null;
+				}
+				catch (NumberFormatException nfe)
+				{
+					port = null;
+				}
+				current.setLocalPort(port);
+			}
 		}
 	}
 	
