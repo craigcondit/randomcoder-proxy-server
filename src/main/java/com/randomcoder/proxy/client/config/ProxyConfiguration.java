@@ -36,7 +36,7 @@ import com.randomcoder.proxy.client.validation.ValidationResult;
  * POSSIBILITY OF SUCH DAMAGE.
  * </pre>
  */
-public class ProxyConfiguration implements Serializable, Comparable<ProxyConfiguration>
+public class ProxyConfiguration implements Serializable, Comparable<ProxyConfiguration>, Cloneable
 {
 	private static final long serialVersionUID = 8946339597124804174L;
 	
@@ -269,5 +269,25 @@ public class ProxyConfiguration implements Serializable, Comparable<ProxyConfigu
 			results.add(new ValidationResult("localPort", "Local port is required."));
 		
 		return results;
+	}
+
+	/**
+	 * Clones this object into a new one.
+	 * 
+	 * @return deep copy of this object
+	 */
+	@Override
+	public ProxyConfiguration clone()
+	{
+		ProxyConfiguration proxy = new ProxyConfiguration();
+		proxy.name = name;
+		proxy.proxyUrl = proxyUrl;
+		proxy.password = password;
+		proxy.username = username;
+		proxy.remoteHost = remoteHost;
+		proxy.remotePort = remotePort;
+		proxy.localPort = localPort;
+		
+		return proxy;
 	}
 }

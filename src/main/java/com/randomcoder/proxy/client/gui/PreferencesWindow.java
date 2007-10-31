@@ -62,11 +62,26 @@ public class PreferencesWindow extends JFrame
 	
 	private boolean dirty = false;
 	private ProxyConfiguration current;
+	private ProxyConfiguration original;
 	private int currentIndex = -1;
 	
 	public PreferencesWindow()
 	{
-		super("Preferences");
+		super("HTTP Proxy Preferences");
+		
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+				
+		addWindowListener(new WindowAdapter()
+		{
+			@Override
+			public void windowClosing(WindowEvent e)
+			{
+				if (!validateForm(true))
+					return;
+								
+				setVisible(false);
+			}			
+		});
 		
 		// set the window's icon
 		setIconImage(new ImageIcon(getClass().getResource("/icon-512x512.png")).getImage());
@@ -93,7 +108,7 @@ public class PreferencesWindow extends JFrame
 				deleteButton.setEnabled(connectionList.getSelectedIndex() >= 0);
 				
 				// change the currently active item
-				handleEdit();
+				handleEdit(false);
 			}
 		});
 
@@ -316,9 +331,10 @@ public class PreferencesWindow extends JFrame
 		// TODO stub
 		listModel.clear();
 		current = null;
+		original = null;
 		dirty = false;
 		currentIndex = -1;
-		handleEdit();
+		handleEdit(false);
 	}
 	
 	public void saveSettings()
@@ -328,18 +344,18 @@ public class PreferencesWindow extends JFrame
 	
 	protected void handleAdd()
 	{
-		if (!validateForm())
+		if (!validateForm(false))
 			return;
 		
-		current = null;
+		connectionList.setSelectedIndex(listModel.addNew());
+		currentIndex = connectionList.getSelectedIndex();
+		current = listModel.getElementAt(currentIndex);
 		dirty = false;
-		currentIndex = -1;
-		
-		connectionList.setSelectedIndex(listModel.addNew());		
-		handleEdit();
+		handleEdit(true);
+		original = null;
 	}
 	
-	protected void handleEdit()
+	protected void handleEdit(boolean isNew)
 	{
 		current = listModel.getElementAt(connectionList.getSelectedIndex());
 		
@@ -368,12 +384,15 @@ public class PreferencesWindow extends JFrame
 		}
 		else
 		{
-			if (!validateForm())
+			if (!validateForm(false))
 			{
 				connectionList.setSelectedIndex(currentIndex);
 				current = listModel.getElementAt(currentIndex);
 				return;
 			}
+			
+			if (!dirty)
+				original = isNew ? null : current.clone();
 			
 			dirty = false;
 			currentIndex = connectionList.getSelectedIndex();
@@ -422,21 +441,18 @@ public class PreferencesWindow extends JFrame
 		listModel.deleteCurrent();		
 	}
 	
-	protected boolean validateForm()
+	protected boolean validateForm(boolean prompt)
 	{
 		ProxyConfiguration test = listModel.getElementAt(currentIndex);
 		
-		if (dirty && test != null && currentIndex >= 0 && currentIndex != connectionList.getSelectedIndex())
+		if (dirty && test != null && currentIndex >= 0)
 		{			
 			// perform validation
 			List<ValidationResult> results = test.validate();
 			
 			if (results.size() > 0)
 			{
-				// build an error message
-				
 				StringBuilder buf = new StringBuilder();
-				buf.append("The following problems must be corrected:\r\n\r\n");
 				
 				for (ValidationResult result : results)
 				{
@@ -444,8 +460,43 @@ public class PreferencesWindow extends JFrame
 					buf.append("\r\n");
 				}
 				
-				// show a message dialog
-				JOptionPane.showMessageDialog(this, buf.toString(), "Validation errors", JOptionPane.ERROR_MESSAGE);
+				// build an error message
+				if (prompt)
+				{
+					Object[] options = new Object[] { "Close anyway", "Continue editing" };
+					
+					if (JOptionPane.YES_OPTION == JOptionPane.showOptionDialog(this, "The current configuration cannot be saved due to the following problems:\r\n\r\n" + buf.toString(), "Validation errors", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[1]))
+					{
+						// undo current changes and rollback
+						if (original == null)
+						{
+							// newly added; delete
+							listModel.deleteCurrent();
+							original = null;
+							current = null;
+							currentIndex = -1;
+							dirty = false;
+							return true;
+						}
+						else
+						{
+							// revert changes
+							current = original.clone();
+							listModel.replaceCurrent(current);
+							dirty = false;
+							return true;
+						}
+					}
+					else
+					{
+						return false;
+					}
+				}
+				else
+				{
+					// show a message dialog
+					JOptionPane.showMessageDialog(this, "The following problems must be corrected:\r\n\r\n" + buf.toString(), "Validation errors", JOptionPane.WARNING_MESSAGE);
+				}
 				
 				// reset to previously selected value
 				connectionList.setSelectedIndex(currentIndex);
@@ -500,6 +551,12 @@ public class PreferencesWindow extends JFrame
 		{
 			data.remove(connectionList.getSelectedIndex());
 			fireIntervalRemoved(this, connectionList.getSelectedIndex(), connectionList.getSelectedIndex());
+		}
+		
+		public void replaceCurrent(ProxyConfiguration element)
+		{
+			data.set(connectionList.getSelectedIndex(), element);
+			fireContentsChanged(this, connectionList.getSelectedIndex(), connectionList.getSelectedIndex());
 		}
 	}
 	
