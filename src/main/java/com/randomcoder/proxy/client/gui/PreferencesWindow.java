@@ -7,7 +7,7 @@ import java.awt.event.*;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
-import java.util.prefs.*;
+import java.util.prefs.BackingStoreException;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -15,8 +15,7 @@ import javax.swing.event.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.randomcoder.proxy.client.ProxyClient;
-import com.randomcoder.proxy.client.config.ProxyConfiguration;
+import com.randomcoder.proxy.client.config.*;
 import com.randomcoder.proxy.client.validation.ValidationResult;
 
 /**
@@ -47,7 +46,7 @@ import com.randomcoder.proxy.client.validation.ValidationResult;
  * POSSIBILITY OF SUCH DAMAGE.
  * </pre>
  */
-public class PreferencesWindow extends JFrame
+public class PreferencesWindow extends JFrame implements ProxyConfigurationProducer
 {
 	private static final long serialVersionUID = 3758601335874262188L;
 
@@ -68,6 +67,8 @@ public class PreferencesWindow extends JFrame
 	private ProxyConfiguration current;
 	private ProxyConfiguration original;
 	private int currentIndex = -1;
+	
+	private final LinkedList<ProxyConfigurationListener> listeners = new LinkedList<ProxyConfigurationListener>();
 	
 	public PreferencesWindow()
 	{
@@ -332,84 +333,42 @@ public class PreferencesWindow extends JFrame
 		}
 	}
 	
+	protected void notifyListeners(List<ProxyConfiguration> config)
+	{
+		for (ProxyConfigurationListener listener : listeners)
+			listener.configSaved(config);
+	}
+	
+	public void addProxyConfigurationListener(ProxyConfigurationListener listener)
+	{
+		listeners.addLast(listener);
+	}
+
+	public void removeProxyConfigurationListener(ProxyConfigurationListener listener)
+	{
+		for (Iterator<ProxyConfigurationListener> it = listeners.iterator(); it.hasNext();)
+			if (it.next() == listener)
+				it.remove();
+	}
+
 	public void loadSettings() throws BackingStoreException
 	{
-		List<ProxyConfiguration> configs = new ArrayList<ProxyConfiguration>();
-		
-		Preferences prefs = Preferences.userNodeForPackage(ProxyClient.class);
-		
-		// remove existing preferences
-		for (String child : prefs.childrenNames())
-		{
-			Preferences sub = prefs.node(child);
-			
-			ProxyConfiguration config = new ProxyConfiguration();
-			
-			config.setName(child);
-			config.setProxyUrl(sub.get("ProxyUrl", null));
-			config.setUsername(sub.get("Username", null));
-			config.setRemoteHost(sub.get("RemoteHost", null));
-			config.setRemotePort(sub.getInt("RemotePort", -1));
-			config.setLocalPort(sub.getInt("LocalPort", -1));
-			
-			configs.add(config);
-		}
-		Collections.sort(configs);
-		
 		listModel.clear();
+		
 		current = null;
 		original = null;
 		dirty = false;
 		currentIndex = -1;
 		handleEdit(false);
 		
-		listModel.setData(configs);
+		listModel.setData(ProxyConfiguration.load());
 	}
 	
 	public void saveSettings() throws BackingStoreException
 	{
-		List<ProxyConfiguration> configs = new ArrayList<ProxyConfiguration>(listModel.getData());
-		Collections.sort(configs);
-
-		Preferences prefs = Preferences.userNodeForPackage(ProxyClient.class);
-		
-		// remove existing preferences
-		for (String child : prefs.childrenNames())
-			prefs.node(child).removeNode();
-		
-		for (int i = 0; i < configs.size(); i++)
-		{
-			ProxyConfiguration config = configs.get(i);
-			
-			String name = config.getName();
-			if (name == null)
-				continue;
-			
-			Preferences child = prefs.node(name);
-			
-			String url = config.getProxyUrl();
-			if (url != null)
-				child.put("ProxyUrl", url);
-
-			String user = config.getUsername();
-			if (user != null)
-				child.put("Username", user);
-			
-			String rhost = config.getRemoteHost();
-			if (rhost != null)
-				child.put("RemoteHost", rhost);
-			
-			Integer rport = config.getRemotePort();
-			if (rport != null)
-				child.putInt("RemotePort", rport);
-			
-			Integer lport = config.getLocalPort();
-			if (lport != null)
-				child.putInt("LocalPort", lport);
-			
-			child.flush();
-		}
-		prefs.flush();
+		List<ProxyConfiguration> config = listModel.getData();
+		ProxyConfiguration.save(config);
+		notifyListeners(config);
 	}
 	
 	protected void handleAdd()

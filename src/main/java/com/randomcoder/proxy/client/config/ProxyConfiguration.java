@@ -3,9 +3,11 @@ package com.randomcoder.proxy.client.config;
 import java.io.Serializable;
 import java.net.*;
 import java.util.*;
+import java.util.prefs.*;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.randomcoder.proxy.client.ProxyClient;
 import com.randomcoder.proxy.client.validation.ValidationResult;
 
 /**
@@ -281,5 +283,90 @@ public class ProxyConfiguration implements Serializable, Comparable<ProxyConfigu
 		proxy.localPort = localPort;
 		
 		return proxy;
+	}
+	
+	/**
+	 * Loads the list of proxy configurations.
+	 * 
+	 * @return list of proxy configs
+	 * @throws BackingStoreException
+	 *             if preferences are unavailable
+	 */
+	public static List<ProxyConfiguration> load() throws BackingStoreException
+	{
+		List<ProxyConfiguration> configs = new ArrayList<ProxyConfiguration>();
+		
+		Preferences prefs = Preferences.userNodeForPackage(ProxyClient.class);
+		
+		// iterate children to get items
+		for (String child : prefs.childrenNames())
+		{
+			Preferences sub = prefs.node(child);
+			
+			ProxyConfiguration config = new ProxyConfiguration();
+			
+			config.setName(child);
+			config.setProxyUrl(sub.get("ProxyUrl", null));
+			config.setUsername(sub.get("Username", null));
+			config.setRemoteHost(sub.get("RemoteHost", null));
+			config.setRemotePort(sub.getInt("RemotePort", -1));
+			config.setLocalPort(sub.getInt("LocalPort", -1));
+			
+			configs.add(config);
+		}
+		Collections.sort(configs);
+		return configs;
+	}
+
+	/**
+	 * Saves the list of proxy configurations.
+	 * 
+	 * @param config
+	 *            list of proxy configs
+	 * @throws BackingStoreException
+	 *             if preferences are unavailable
+	 */
+	public static void save(List<ProxyConfiguration> config)
+	throws BackingStoreException
+	{
+		Preferences prefs = Preferences.userNodeForPackage(ProxyClient.class);
+		
+		// remove existing preferences
+		for (String child : prefs.childrenNames())
+			prefs.node(child).removeNode();
+		
+		for (int i = 0; i < config.size(); i++)
+		{
+			ProxyConfiguration cfg = config.get(i);
+			
+			String name = cfg.getName();
+			if (name == null)
+				continue;
+			
+			Preferences child = prefs.node(name);
+			
+			String url = cfg.getProxyUrl();
+			if (url != null)
+				child.put("ProxyUrl", url);
+
+			String user = cfg.getUsername();
+			if (user != null)
+				child.put("Username", user);
+			
+			String rhost = cfg.getRemoteHost();
+			if (rhost != null)
+				child.put("RemoteHost", rhost);
+			
+			Integer rport = cfg.getRemotePort();
+			if (rport != null)
+				child.putInt("RemotePort", rport);
+			
+			Integer lport = cfg.getLocalPort();
+			if (lport != null)
+				child.putInt("LocalPort", lport);
+			
+			child.flush();
+		}
+		prefs.flush();
 	}
 }
