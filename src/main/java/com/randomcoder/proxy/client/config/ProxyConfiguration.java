@@ -269,10 +269,10 @@ public class ProxyConfiguration implements Serializable, Comparable<ProxyConfigu
 			results.add(new ValidationResult("remoteHost", "Remote host is required."));
 		else
 		{
-			if (!DataValidationUtils.isValidDomainName(remoteHost) && 
+			if (!DataValidationUtils.isValidHostName(remoteHost) && 
 				!DataValidationUtils.isValidIpAddress(remoteHost))
 			{
-				results.add(new ValidationResult("remoteHost", "Remote host is unreachable."));
+				results.add(new ValidationResult("remoteHost", "Remote host is invalid."));
 			}
 		}
 		
