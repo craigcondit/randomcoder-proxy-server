@@ -56,7 +56,6 @@ public class PreferencesWindow extends JFrame
 	private final JTextField connectionName;
 	private final JTextField proxyUrl;
 	private final JTextField username;
-	private final JPasswordField password;
 	private final JTextField remoteHost;
 	private final JTextField remotePort;
 	private final JTextField localPort;
@@ -201,22 +200,8 @@ public class PreferencesWindow extends JFrame
 			GridBagConstraints.WEST, GridBagConstraints.NONE,
 			new Insets(0, 0, 11, 0), 0, 0));
 		
-		prefPanel.add(new JLabel("Password:"), new GridBagConstraints(
-			0, 3, 1, 1, 0.0, 0.0,
-			GridBagConstraints.EAST, GridBagConstraints.NONE,
-			new Insets(0, 12, 12, 11), 0, 0));
-
-		password = new JPasswordField(15);
-		password.setEnabled(false);
-		password.getDocument().addDocumentListener(new ProxyDocumentListener(password));
-		
-		prefPanel.add(password, new GridBagConstraints(
-			1, 3, 1, 1, 0.0, 0.0,
-			GridBagConstraints.WEST, GridBagConstraints.NONE,
-			new Insets(0, 0, 11, 0), 0, 0));
-
 		prefPanel.add(new JLabel("Remote host:"), new GridBagConstraints(
-			0, 4, 1, 1, 0.0, 0.0,
+			0, 3, 1, 1, 0.0, 0.0,
 			GridBagConstraints.EAST, GridBagConstraints.NONE,
 			new Insets(0, 12, 12, 11), 0, 0));
 
@@ -234,12 +219,12 @@ public class PreferencesWindow extends JFrame
 		});
 		
 		prefPanel.add(remoteHost, new GridBagConstraints(
-			1, 4, 1, 1, 0.0, 0.0,
+			1, 3, 1, 1, 0.0, 0.0,
 			GridBagConstraints.WEST, GridBagConstraints.NONE,
 			new Insets(0, 0, 11, 0), 0, 0));
 		
 		prefPanel.add(new JLabel("Remote port:"), new GridBagConstraints(
-			0, 5, 1, 1, 0.0, 0.0,
+			0, 4, 1, 1, 0.0, 0.0,
 			GridBagConstraints.EAST, GridBagConstraints.NONE,
 			new Insets(0, 12, 12, 11), 0, 0));
 
@@ -260,12 +245,12 @@ public class PreferencesWindow extends JFrame
 		});
 
 		prefPanel.add(remotePort, new GridBagConstraints(
-			1, 5, 1, 1, 0.0, 0.0,
+			1, 4, 1, 1, 0.0, 0.0,
 			GridBagConstraints.WEST, GridBagConstraints.NONE,
 			new Insets(0, 0, 11, 0), 0, 0));
 		
 		prefPanel.add(new JLabel("Local port:"), new GridBagConstraints(
-			0, 6, 1, 1, 0.0, 0.0,
+			0, 5, 1, 1, 0.0, 0.0,
 			GridBagConstraints.EAST, GridBagConstraints.NONE,
 			new Insets(0, 12, 0, 11), 0, 0));
 
@@ -286,7 +271,7 @@ public class PreferencesWindow extends JFrame
 		});
 		
 		prefPanel.add(localPort, new GridBagConstraints(
-			1, 6, 1, 1, 0.0, 0.0,
+			1, 5, 1, 1, 0.0, 0.0,
 			GridBagConstraints.WEST, GridBagConstraints.NONE,
 			new Insets(0, 0, 0, 0), 0, 0));
 		
@@ -455,9 +440,6 @@ public class PreferencesWindow extends JFrame
 			username.setEnabled(false);
 			username.setText("");
 			
-			password.setEnabled(false);
-			password.setText("");
-			
 			remoteHost.setEnabled(false);
 			remoteHost.setText("");
 			
@@ -494,9 +476,6 @@ public class PreferencesWindow extends JFrame
 			
 			username.setText(current.getUsername());			
 			username.setEnabled(true);
-			
-			password.setText(current.getPassword());
-			password.setEnabled(true);
 			
 			remoteHost.setText(current.getRemoteHost());
 			remoteHost.setEnabled(true);
@@ -707,9 +686,6 @@ public class PreferencesWindow extends JFrame
 			
 			if (target == username)
 				current.setUsername(username.getText());
-			
-			if (target == password)
-				current.setPassword(new String(password.getPassword()));
 			
 			if (target == remoteHost)
 				current.setRemoteHost(new String(remoteHost.getText()));

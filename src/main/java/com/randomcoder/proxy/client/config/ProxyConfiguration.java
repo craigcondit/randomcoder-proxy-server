@@ -43,7 +43,6 @@ public class ProxyConfiguration implements Serializable, Comparable<ProxyConfigu
 	private String name;
 	private String proxyUrl;
 	private String username;
-	private String password;
 	private String remoteHost;
 	private Integer remotePort;
 	private Integer localPort;
@@ -109,27 +108,6 @@ public class ProxyConfiguration implements Serializable, Comparable<ProxyConfigu
 	public void setUsername(String username)
 	{
 		this.username = username;
-	}
-
-	/**
-	 * Gets the password associated with this proxy.
-	 * 
-	 * @return password
-	 */
-	public String getPassword()
-	{
-		return password;
-	}
-	
-	/**
-	 * Sets the password associated with this proxy.
-	 * 
-	 * @param password
-	 *            password
-	 */
-	public void setPassword(String password)
-	{
-		this.password = password;
 	}
 
 	/**
@@ -297,7 +275,6 @@ public class ProxyConfiguration implements Serializable, Comparable<ProxyConfigu
 		ProxyConfiguration proxy = new ProxyConfiguration();
 		proxy.name = name;
 		proxy.proxyUrl = proxyUrl;
-		proxy.password = password;
 		proxy.username = username;
 		proxy.remoteHost = remoteHost;
 		proxy.remotePort = remotePort;
