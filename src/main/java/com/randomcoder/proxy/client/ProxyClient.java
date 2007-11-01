@@ -136,7 +136,7 @@ public class ProxyClient
 				
 				logger.debug("Connection received");
 				
-				SocketListenerThread listener = new SocketListenerThread(socket, name, proxyUrl, username, remoteHost, remotePort, auth);
+				SocketListenerThread listener = new SocketListenerThread(socket, name, proxyUrl, username, remoteHost, remotePort, auth, proxyConfigurationListener);
 				listeners.add(listener);
 				
 				logger.debug("Listener created");
@@ -170,7 +170,8 @@ public class ProxyClient
 		
 		try { if (socket != null) socket.close(); } catch (Throwable ignored) {}
 		try { if (ss != null) ss.close(); } catch (Throwable ignored) {}
-		proxyConfigurationListener.connectionTeardown(null);
+		if (proxyConfigurationListener != null)
+			proxyConfigurationListener.connectionTeardown(null);
 	}
 	
 	public void shutdown()

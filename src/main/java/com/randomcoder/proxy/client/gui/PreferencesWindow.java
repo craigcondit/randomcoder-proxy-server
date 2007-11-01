@@ -46,7 +46,7 @@ import com.randomcoder.proxy.client.validation.ValidationResult;
  * POSSIBILITY OF SUCH DAMAGE.
  * </pre>
  */
-public class PreferencesWindow extends JFrame implements ProxyConfigurationProducer
+public class PreferencesWindow extends JFrame
 {
 	private static final long serialVersionUID = 3758601335874262188L;
 

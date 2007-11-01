@@ -9,6 +9,8 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
 
+import com.randomcoder.proxy.client.config.ProxyConfigurationListener;
+
 /**
  * Thread which handles communication between a local socket and a remote HTTP
  * proxy.
@@ -51,6 +53,8 @@ public class SocketListenerThread extends Thread
 	private final String host;
 	private final int port;
 	private final Authenticator auth;
+	private final ProxyConfigurationListener listener;
+	
 	private volatile boolean shutdown = false;
 	
 	/**
@@ -70,8 +74,10 @@ public class SocketListenerThread extends Thread
 	 *            remote port to connect to
 	 * @param auth
 	 *            authenticator used to retrieve credentials
+	 * @param listener
+	 *            proxy configuration listener
 	 */
-	public SocketListenerThread(Socket socket, String name, String proxyUrl, String username, String host, int port, Authenticator auth)
+	public SocketListenerThread(Socket socket, String name, String proxyUrl, String username, String host, int port, Authenticator auth, ProxyConfigurationListener listener)
 	{
 		logger.debug("Socket listener created");
 		logger.debug("  Proxy URL: " + proxyUrl);
@@ -85,6 +91,7 @@ public class SocketListenerThread extends Thread
 		this.host = host;
 		this.port = port;
 		this.auth = auth;
+		this.listener = listener;
 				
 		connectionManager = new MultiThreadedHttpConnectionManager();
 		client = new HttpClient(connectionManager);
