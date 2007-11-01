@@ -39,9 +39,9 @@ import com.randomcoder.systray.*;
 public class TrayMenu
 {
 	private final boolean supported;
-	private final JFrame mainWindow;
-	private final JFrame aboutWindow;
-	private final JFrame prefsWindow;
+	private final MainWindow mainWindow;
+	private final AboutWindow aboutWindow;
+	private final PreferencesWindow prefsWindow;
 	private final TrayIconWrapper icon;
 	private final LinkedList<ActionListener> closeListeners = new LinkedList<ActionListener>();
 	
@@ -57,7 +57,7 @@ public class TrayMenu
 	 * @param prefsWindow
 	 *            Preferences window to display
 	 */
-	public TrayMenu(final JFrame mainWindow, final JFrame aboutWindow, final JFrame prefsWindow)
+	public TrayMenu(final MainWindow mainWindow, final AboutWindow aboutWindow, final PreferencesWindow prefsWindow)
 	{		
 		this.mainWindow = mainWindow;
 		this.aboutWindow = aboutWindow;
@@ -141,7 +141,8 @@ public class TrayMenu
 			{
 				public void actionPerformed(ActionEvent e)
 				{
-					setVisible(false);
+					if (handleExit())
+						setVisible(false);
 				}
 			});
 			popup.add(exit);
@@ -164,6 +165,14 @@ public class TrayMenu
 		{
 			icon = null;
 		}
+	}
+	
+	protected boolean handleExit()
+	{
+		if (mainWindow == null)
+			return true;
+		
+		return mainWindow.handleExit();
 	}
 	
 	/**

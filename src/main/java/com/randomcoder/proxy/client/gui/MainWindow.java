@@ -363,7 +363,7 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 		}		
 	}
 
-	protected boolean handleExit()
+	public boolean handleExit()
 	{
 		boolean active = false;
 		
