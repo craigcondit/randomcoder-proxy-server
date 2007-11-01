@@ -447,6 +447,7 @@ public class MainWindow extends JFrame
 	{
 		try
 		{
+			System.setProperty("apple.laf.useScreenMenuBar", "true");
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			
 			MainWindow window = new MainWindow();
