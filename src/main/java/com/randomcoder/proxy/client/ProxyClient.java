@@ -2,9 +2,11 @@ package com.randomcoder.proxy.client;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 
+import com.randomcoder.proxy.client.config.ProxyConfigurationListener;
 import com.randomcoder.proxy.client.gui.SwingAuthenticator;
 
 /**
@@ -39,11 +41,16 @@ public class ProxyClient
 {
 	private static final Logger logger = Logger.getLogger(ProxyClient.class);
 	
+	private final String name;
 	private final String proxyUrl;
+	private final String username;
 	private final String remoteHost;
 	private final int remotePort;
 	private final int localPort;
 	private final Authenticator auth;
+	private volatile boolean stopped = false;
+	private final List<SocketListenerThread> listeners = new ArrayList<SocketListenerThread>();
+	private final ProxyConfigurationListener proxyConfigurationListener;
 	
 	/**
 	 * Creates a new proxy client.
@@ -59,11 +66,40 @@ public class ProxyClient
 	 */
 	public ProxyClient(String proxyUrl, String remoteHost, int remotePort, int localPort)
 	{
+		this(null, proxyUrl, null, remoteHost, remotePort, localPort, new SwingAuthenticator(), null);
+	}
+
+	/**
+	 * Creates a new proxy client.
+	 * 
+	 * @param name
+	 *            name of remote proxy
+	 * @param proxyUrl
+	 *            base URL of remote proxy
+	 * @param username
+	 *            username of remote proxy
+	 * @param remoteHost
+	 *            host to connect to on remote side
+	 * @param remotePort
+	 *            port to connect to on remote side
+	 * @param localPort
+	 *            local port to listen on
+	 * @param auth
+	 *            authenticator to use
+	 * @param listener
+	 *            proxy configuration listener or <code>null</code> to skip
+	 *            stats tracking
+	 */
+	public ProxyClient(String name, String proxyUrl, String username, String remoteHost, int remotePort, int localPort, Authenticator auth, ProxyConfigurationListener listener)
+	{
+		this.name = name;
 		this.proxyUrl = proxyUrl;
+		this.username = username;
 		this.remoteHost = remoteHost;
 		this.remotePort = remotePort;
 		this.localPort = localPort;
-		auth = new SwingAuthenticator();
+		this.auth = auth;
+		this.proxyConfigurationListener = listener;
 	}
 	
 	/**
@@ -76,32 +112,70 @@ public class ProxyClient
 	{
 		ServerSocket ss = new ServerSocket();
 		ss.bind(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), localPort));
+		ss.setSoTimeout(1000);
 		
 		logger.debug("Listening for connections");
 
 		Socket socket = null;
-		
-		while (true)
+				
+		while (!stopped)
 		{
 			try
 			{
 				socket = ss.accept();
-
+			}
+			catch (SocketTimeoutException e)
+			{
+				logger.debug("Timeout");
+				continue;
+			}
+			
+			try
+			{
+				socket.setSoTimeout(0);
+				
 				logger.debug("Connection received");
 				
-				SocketListenerThread listener = new SocketListenerThread(socket, proxyUrl, remoteHost, remotePort, auth);
+				SocketListenerThread listener = new SocketListenerThread(socket, name, proxyUrl, username, remoteHost, remotePort, auth);
+				listeners.add(listener);
+				
 				logger.debug("Listener created");
 				
 				listener.start();
+				
 				logger.debug("Listener started");
 				socket = null;
 			}
 			catch (Throwable t)
 			{
-				try { if (socket != null) socket.close(); } catch (Throwable ignored) {}
 				logger.error("Caught exception", t);
+				break;
 			}
 		}
+		
+		for (SocketListenerThread listener : listeners)
+		{
+			logger.debug("Shutting down listener thread");
+			listener.shutdown();
+			try
+			{
+				listener.join();
+			}
+			catch (InterruptedException ignored)
+			{
+			}
+			logger.debug("Thread shutdown");
+		}
+		listeners.clear();
+		
+		try { if (socket != null) socket.close(); } catch (Throwable ignored) {}
+		try { if (ss != null) ss.close(); } catch (Throwable ignored) {}
+		proxyConfigurationListener.connectionTeardown(null);
+	}
+	
+	public void shutdown()
+	{
+		stopped = true;
 	}
 	
 	/**

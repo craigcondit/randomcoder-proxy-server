@@ -47,10 +47,14 @@ public class PasswordDialog extends JDialog
 	 * 
 	 * @param parent
 	 *            parent frame or <code>null</code> if none
+	 * @param name
+	 *            name of proxy to display
 	 * @param proxyUrl
 	 *            URL of remote proxy to display
+	 * @param username
+	 *            default username
 	 */
-	public PasswordDialog(JFrame parent, String proxyUrl)
+	public PasswordDialog(JFrame parent, String name, String proxyUrl, String user)
 	{
 		super(parent, true);
 		
@@ -58,17 +62,32 @@ public class PasswordDialog extends JDialog
 		
 		cp.setLayout(new GridBagLayout());
 
-		JLabel proxy = new JLabel(proxyUrl);
-		proxy.setFont(proxy.getFont().deriveFont(Font.PLAIN));
-
-		cp.add(new JLabel("Proxy URL:"), new GridBagConstraints(0, 0, 1, 1, 1, 1, EAST, NONE, new Insets(10,10,0,0), 0, 0));
-		cp.add(proxy, new GridBagConstraints(1, 0, 2, 1, 1, 1, WEST, HORIZONTAL, new Insets(10,10,0,10), 0, 0));
+		if (name == null)
+		{
+			JLabel proxy = new JLabel(proxyUrl);
+			proxy.setFont(proxy.getFont().deriveFont(Font.PLAIN));
+			
+			cp.add(new JLabel("Proxy URL:"), new GridBagConstraints(0, 0, 1, 1, 1, 1, EAST, NONE, new Insets(10,10,0,0), 0, 0));
+			cp.add(proxy, new GridBagConstraints(1, 0, 2, 1, 1, 1, WEST, HORIZONTAL, new Insets(10,10,0,10), 0, 0));
+		}
+		else
+		{
+			// name specified
+			JLabel proxy = new JLabel(name);
+			proxy.setFont(proxy.getFont().deriveFont(Font.PLAIN));
+			
+			cp.add(new JLabel("Proxy:"), new GridBagConstraints(0, 0, 1, 1, 1, 1, EAST, NONE, new Insets(10,10,0,0), 0, 0));
+			cp.add(proxy, new GridBagConstraints(1, 0, 2, 1, 1, 1, WEST, HORIZONTAL, new Insets(10,10,0,10), 0, 0));
+		}
 		
 		final JTextField userField = new JTextField();
 		userField.setMaximumSize(new Dimension(100, (int) userField.getPreferredSize().getHeight()));
 		userField.setPreferredSize(userField.getMaximumSize());
 		userField.setMinimumSize(userField.getMaximumSize());
 		userField.requestFocusInWindow();
+		
+		if (user != null)
+			userField.setText(user);
 		
 		final JPasswordField passField = new JPasswordField();
 		passField.setMaximumSize(new Dimension(100, (int) passField.getPreferredSize().getHeight()));

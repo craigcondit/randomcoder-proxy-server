@@ -42,12 +42,12 @@ public class ProxyConfiguration implements Serializable, Comparable<ProxyConfigu
 {
 	private static final long serialVersionUID = 8946339597124804174L;
 	
-	private String name;
-	private String proxyUrl;
-	private String username;
-	private String remoteHost;
-	private Integer remotePort;
-	private Integer localPort;
+	protected String name;
+	protected String proxyUrl;
+	protected String username;
+	protected String remoteHost;
+	protected Integer remotePort;
+	protected Integer localPort;
 
 	/**
 	 * Default constructor.

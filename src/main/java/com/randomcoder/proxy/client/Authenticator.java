@@ -35,11 +35,15 @@ public interface Authenticator
 	/**
 	 * Gets credentials for a remote proxy.
 	 * 
+	 * @param name
+	 *            name of remote proxy
 	 * @param proxyUrl
 	 *            base URL of remote proxy
+	 * @param username
+	 *            username of remote proxy
 	 * @param force
 	 *            force prompting of user
 	 * @return credentials, or <code>null</code> if canceled by user
 	 */
-	public Credentials getCredentials(String proxyUrl, boolean force);
+	public Credentials getCredentials(String name, String proxyUrl, String username, boolean force);
 }

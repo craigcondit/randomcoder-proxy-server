@@ -55,6 +55,7 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 	private final JList connectionList;
 	private final JButton connectButton;
 	private final JButton disconnectButton;
+	private final SwingAuthenticator auth = new SwingAuthenticator();
 	
 	private TrayMenu trayMenu;
 	
@@ -227,21 +228,7 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 				if (e.getValueIsAdjusting())
 					return;
 				
-				int[] selected = connectionList.getSelectedIndices();
-				
-				boolean allowConnect = false;
-				
-				boolean allowDisconnect = false;
-				
-				for (int i : selected)
-				{
-					if (listModel.getElementAt(i).isConnected())
-						allowDisconnect = true;
-					else
-						allowConnect = true;
-				}
-				connectButton.setEnabled(allowConnect);
-				disconnectButton.setEnabled(allowDisconnect);
+				updateButtonState();
 			}
 		});
 		
@@ -312,6 +299,48 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 		// TODO merge existing configuration with proxy		
 	}
 	
+	public void connectionClosed(ProxyConfigurationStatistics config)
+	{
+		listModel.update(config);
+	}
+
+	public void connectionOpened(ProxyConfigurationStatistics config)
+	{
+		listModel.update(config);
+	}
+
+	public void connectionSetup(ProxyConfigurationStatistics config)
+	{
+		listModel.update(config);
+		updateButtonState();
+	}
+
+	public void connectionTeardown(ProxyConfigurationStatistics config)
+	{
+		listModel.update(config);
+		updateButtonState();
+	}
+
+	public void connectionSetupStarting(ProxyConfigurationStatistics config)
+	{
+		listModel.update(config);
+	}
+
+	public void connectionTeardownStarting(ProxyConfigurationStatistics config)
+	{
+		listModel.update(config);
+	}
+
+	public void dataReceived(ProxyConfigurationStatistics config, long bytes)
+	{
+		listModel.update(config);
+	}
+
+	public void dataSent(ProxyConfigurationStatistics config, long bytes)
+	{
+		listModel.update(config);
+	}
+	
 	public void load()
 	{
 		try
@@ -320,7 +349,11 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 			
 			List<ProxyConfigurationStatistics> stats = new ArrayList<ProxyConfigurationStatistics>(configs.size());
 			for (ProxyConfiguration config : configs)
-				stats.add(new ProxyConfigurationStatistics(config));
+			{
+				ProxyConfigurationStatistics stat = new ProxyConfigurationStatistics(config);
+				stat.addProxyConfigurationListener(this);
+				stats.add(stat);
+			}
 			
 			listModel.setData(stats);
 		}
@@ -332,18 +365,65 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 
 	protected boolean handleExit()
 	{
-		// TODO stub
+		boolean active = false;
+		
+		for (int i = 0; i < listModel.getSize(); i++)
+			if (listModel.getElementAt(i).getActiveCount() > 0)
+				active = true;
+		
+		if (active)
+		{
+			// TODO prompt for whether to close anyway
+		}
+		
+		// disconnect all connections
+		for (int i = 0; i < listModel.getSize(); i++)
+		{
+			ProxyConfigurationStatistics item = listModel.getElementAt(i);
+			if (item.isConnected())
+				item.disconnect();
+		}
+		
 		return true;
 	}
 	
 	protected void handleConnect()
 	{
-		// TODO stub
+		for (int i : connectionList.getSelectedIndices())
+		{
+			ProxyConfigurationStatistics item = listModel.getElementAt(i);
+			if (!item.isConnected())
+				item.connect(auth);
+		}
 	}
 	
 	protected void handleDisconnect()
 	{
-		// TODO stub
+		for (int i : connectionList.getSelectedIndices())
+		{
+			ProxyConfigurationStatistics item = listModel.getElementAt(i);
+			if (item.isConnected())
+				item.disconnect();
+		}
+	}
+	
+	protected void updateButtonState()
+	{
+		int[] selected = connectionList.getSelectedIndices();
+		
+		boolean allowConnect = false;
+		
+		boolean allowDisconnect = false;
+		
+		for (int i : selected)
+		{
+			if (listModel.getElementAt(i).isConnected())
+				allowDisconnect = true;
+			else
+				allowConnect = true;
+		}
+		connectButton.setEnabled(allowConnect);
+		disconnectButton.setEnabled(allowDisconnect);
 	}
 	
 	private static class ConnectionListModel extends AbstractListModel
@@ -364,6 +444,14 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 		{
 			return data.size();
 		}		
+		
+		public void update(ProxyConfigurationStatistics config)
+		{
+			// update the requested entry
+			for (int i = 0; i < data.size(); i++)
+				if (config == data.get(i))
+					super.fireContentsChanged(this, i, i);
+		}
 		
 		public void setData(List<ProxyConfigurationStatistics> data)
 		{
@@ -434,6 +522,8 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 			component.setForeground(parent.getForeground());
 			
 			boolean isConnected = stats.isConnected();
+			boolean isStarting = stats.isStarting();
+			boolean isStopping = stats.isStopping();
 			
 			JLabel text = new JLabel(stats.getName());
 			text.setFont(isConnected ? CONNECTED_HEADING_FONT : DISCONNECTED_HEADING_FONT);
@@ -443,6 +533,10 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 			String connectedText = "Stopped";
 			if (isConnected)
 				connectedText = "Running (" + Integer.toString(stats.getActiveCount()) + " active connections)";
+			else if (isStarting)
+				connectedText = "Starting...";
+			else if (isStopping)
+				connectedText = "Stopping...";
 			
 			JLabel connected = new JLabel(connectedText);
 			connected.setFont(isConnected ? CONNECTED_FONT : DISCONNECTED_FONT);

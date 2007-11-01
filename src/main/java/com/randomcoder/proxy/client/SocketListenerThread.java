@@ -45,18 +45,25 @@ public class SocketListenerThread extends Thread
 	private final Socket socket;
 	private final HttpClient client;
 	private final MultiThreadedHttpConnectionManager connectionManager;
+	private final String name;
 	private final String proxyUrl;
+	private final String username;
 	private final String host;
 	private final int port;
 	private final Authenticator auth;
+	private volatile boolean shutdown = false;
 	
 	/**
 	 * Creates a new socket listener thread.
 	 * 
 	 * @param socket
 	 *            socket to process
+	 * @param name
+	 *            name of proxy instance
 	 * @param proxyUrl
 	 *            base URL of remote proxy
+	 * @param username
+	 *            saved username for proxy
 	 * @param host
 	 *            remote host to connect to
 	 * @param port
@@ -64,7 +71,7 @@ public class SocketListenerThread extends Thread
 	 * @param auth
 	 *            authenticator used to retrieve credentials
 	 */
-	public SocketListenerThread(Socket socket, String proxyUrl, String host, int port, Authenticator auth)
+	public SocketListenerThread(Socket socket, String name, String proxyUrl, String username, String host, int port, Authenticator auth)
 	{
 		logger.debug("Socket listener created");
 		logger.debug("  Proxy URL: " + proxyUrl);
@@ -72,7 +79,9 @@ public class SocketListenerThread extends Thread
 		logger.debug("  Remote port: " + port);
 		
 		this.socket = socket;
+		this.name = name;
 		this.proxyUrl = proxyUrl;
+		this.username = username;
 		this.host = host;
 		this.port = port;
 		this.auth = auth;
@@ -116,7 +125,7 @@ public class SocketListenerThread extends Thread
 			
 			do
 			{
-				Credentials creds = auth.getCredentials(proxyUrl, force);
+				Credentials creds = auth.getCredentials(name, proxyUrl, username, force);
 				if (creds == null)
 					throw new IOException("No credentials supplied");
 
@@ -140,7 +149,7 @@ public class SocketListenerThread extends Thread
 			proxyToSocket.start();
 			socketToProxy.start();
 			
-			while (true)
+			while (!shutdown)
 			{				
 				try { proxyToSocket.join(1000); } catch (InterruptedException ignored) {}
 				if (!proxyToSocket.isAlive())
@@ -220,6 +229,11 @@ public class SocketListenerThread extends Thread
 			
 			logger.debug("Socket listener terminated");
 		}
+	}
+	
+	public void shutdown()
+	{
+		shutdown = true;
 	}
 	
 	private boolean authenticate() throws IOException

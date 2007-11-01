@@ -39,23 +39,23 @@ public class SwingAuthenticator implements Authenticator
 {
 	private final ConcurrentHashMap<String, Credentials> credMap = new ConcurrentHashMap<String, Credentials>();
 	
-	public Credentials getCredentials(String proxyUrl, boolean force)
+	public Credentials getCredentials(String name, String proxyUrl, String username, boolean force)
 	{
-		Credentials creds = credMap.get(proxyUrl);
+		Credentials creds = credMap.get((name == null) ? "Default" : name);
 		
 		if (creds == null || force)
 		{
-			PasswordDialog prompt = new PasswordDialog(null, proxyUrl);
+			PasswordDialog prompt = new PasswordDialog(null, name, proxyUrl, username);
 	
 			prompt.setVisible(true);
 			
-			String username = prompt.getUsername();
+			String user = prompt.getUsername();
 			String password = prompt.getPassword();
 			
-			if (username == null || password == null)
+			if (user == null || password == null)
 				return null;
 
-			creds = new UsernamePasswordCredentials(username, password);
+			creds = new UsernamePasswordCredentials(user, password);
 			
 			credMap.put(proxyUrl, creds);
 		}
