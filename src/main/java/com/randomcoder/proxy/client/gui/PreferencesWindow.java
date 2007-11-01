@@ -319,9 +319,9 @@ public class PreferencesWindow extends JFrame implements ProxyConfigurationProdu
 			GridBagConstraints.WEST, GridBagConstraints.NONE,
 			new Insets(11, 12, 11, 11), 0, 0));
 				
+		pack();
 		setResizable(false);
 		setLocationRelativeTo(null);
-		pack();
 		
 		try
 		{
@@ -687,6 +687,8 @@ public class PreferencesWindow extends JFrame implements ProxyConfigurationProdu
 	{
 		try
 		{
+			System.setProperty("apple.laf.useScreenMenuBar", "true");
+			
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			
 			PreferencesWindow window = new PreferencesWindow();
