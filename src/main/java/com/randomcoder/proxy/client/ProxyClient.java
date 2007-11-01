@@ -174,6 +174,9 @@ public class ProxyClient
 			proxyConfigurationListener.connectionTeardown(null);
 	}
 	
+	/**
+	 * Shutsdown this proxy.
+	 */
 	public void shutdown()
 	{
 		stopped = true;

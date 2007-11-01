@@ -89,6 +89,12 @@ public class ProxyConfigurationStatistics extends ProxyConfiguration implements 
 		return new ProxyConfigurationStatistics(this);
 	}
 	
+	/**
+	 * Adds a new proxy configuration listener.
+	 * 
+	 * @param listener
+	 *            listener to add
+	 */
 	public void addProxyConfigurationListener(ProxyConfigurationListener listener)
 	{
 		for (ProxyConfigurationListener existing : listeners)
@@ -98,6 +104,12 @@ public class ProxyConfigurationStatistics extends ProxyConfiguration implements 
 		listeners.add(listener);
 	}
 	
+	/**
+	 * Removes a proxy configuration listener.
+	 * 
+	 * @param listener
+	 *            listener to remove
+	 */
 	public void removeProxyConfigurationListener(ProxyConfigurationListener listener)
 	{
 		for (Iterator<ProxyConfigurationListener> it = listeners.iterator(); it.hasNext();)
@@ -105,36 +117,72 @@ public class ProxyConfigurationStatistics extends ProxyConfiguration implements 
 				it.remove();
 	}
 	
+	/**
+	 * Determines if this proxy is connected.
+	 * 
+	 * @return <code>true</code> if connected
+	 */
 	public boolean isConnected()
 	{
 		return connected;
 	}
 	
+	/**
+	 * Determines if this proxy is starting up.
+	 * 
+	 * @return <code>true</code> if starting up
+	 */
 	public boolean isStarting()
 	{
 		return starting;
 	}
 	
+	/**
+	 * Determines if this proxy is shutting down.
+	 * 
+	 * @return <code>true</code> if shutting down
+	 */
 	public boolean isStopping()
 	{
 		return stopping;
 	}
 	
+	/**
+	 * Gets the number of active connections.
+	 * 
+	 * @return connection count
+	 */
 	public int getActiveCount()
 	{
 		return activeCount;
 	}
 	
+	/**
+	 * Gets the number of bytes received since startup.
+	 * 
+	 * @return bytes received
+	 */
 	public long getBytesReceived()
 	{
 		return bytesReceived;
 	}
 	
+	/**
+	 * Gets the number of bytes sent since startup.
+	 * 
+	 * @return bytes sent
+	 */
 	public long getBytesSent()
 	{
 		return bytesSent;
 	}
 	
+	/**
+	 * Connects to the remote proxy.
+	 * 
+	 * @param auth
+	 *            authenticator to use for password lookups
+	 */
 	public synchronized void connect(Authenticator auth)
 	{
 		if (listenThread != null)
@@ -150,6 +198,9 @@ public class ProxyConfigurationStatistics extends ProxyConfiguration implements 
 		connectionSetup(this);
 	}
 	
+	/**
+	 * Disconnects from the remote proxy.
+	 */
 	public synchronized void disconnect()
 	{
 		connectionTeardownStarting(this);
@@ -167,10 +218,19 @@ public class ProxyConfigurationStatistics extends ProxyConfiguration implements 
 		connectionTeardown(this);
 	}
 	
+	/**
+	 * Listener thread which manages a proxy connection. 
+	 */
 	protected static final class ListenThread extends Thread
 	{
 		private final ProxyClient client;
 		
+		/**
+		 * Creates a new thread.
+		 * 
+		 * @param client
+		 *            proxy client
+		 */
 		public ListenThread(ProxyClient client)
 		{
 			super("Proxy Thread");
@@ -190,6 +250,9 @@ public class ProxyConfigurationStatistics extends ProxyConfiguration implements 
 			}
 		}
 		
+		/**
+		 * Shuts down this thread.
+		 */
 		public void shutdown()
 		{
 			client.shutdown();

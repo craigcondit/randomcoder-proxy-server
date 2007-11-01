@@ -70,6 +70,9 @@ public class PreferencesWindow extends JFrame
 	
 	private final LinkedList<ProxyConfigurationListener> listeners = new LinkedList<ProxyConfigurationListener>();
 	
+	/**
+	 * Creates a new preferences window.
+	 */
 	public PreferencesWindow()
 	{
 		super("HTTP Proxy Preferences");
@@ -333,17 +336,35 @@ public class PreferencesWindow extends JFrame
 		}
 	}
 	
+	/**
+	 * Notifies all listeners that a configuration has changed.
+	 * 
+	 * @param config
+	 *            list of config items
+	 */
 	protected void notifyListeners(List<ProxyConfiguration> config)
 	{
 		for (ProxyConfigurationListener listener : listeners)
 			listener.configSaved(config);
 	}
 	
+	/**
+	 * Adds a new proxy configuration listener.
+	 * 
+	 * @param listener
+	 *            proxy configuration listener to add
+	 */
 	public void addProxyConfigurationListener(ProxyConfigurationListener listener)
 	{
 		listeners.addLast(listener);
 	}
 
+	/**
+	 * Removes a proxy configuration listener.
+	 * 
+	 * @param listener
+	 *            proxy configuration listener to remove
+	 */
 	public void removeProxyConfigurationListener(ProxyConfigurationListener listener)
 	{
 		for (Iterator<ProxyConfigurationListener> it = listeners.iterator(); it.hasNext();)
@@ -351,6 +372,12 @@ public class PreferencesWindow extends JFrame
 				it.remove();
 	}
 
+	/**
+	 * Loads all settings from the preference store.
+	 * 
+	 * @throws BackingStoreException
+	 *             if prefs are unavailable
+	 */
 	public void loadSettings() throws BackingStoreException
 	{
 		listModel.clear();
@@ -364,6 +391,12 @@ public class PreferencesWindow extends JFrame
 		listModel.setData(ProxyConfiguration.load());
 	}
 	
+	/**
+	 * Saves settings to the preference store.
+	 * 
+	 * @throws BackingStoreException
+	 *             if prefs are unavailable
+	 */
 	public void saveSettings() throws BackingStoreException
 	{
 		List<ProxyConfiguration> config = listModel.getData();
@@ -371,6 +404,9 @@ public class PreferencesWindow extends JFrame
 		notifyListeners(config);
 	}
 	
+	/**
+	 * Handles add button clicks.
+	 */
 	protected void handleAdd()
 	{
 		if (!validateForm(false))
@@ -384,6 +420,12 @@ public class PreferencesWindow extends JFrame
 		original = null;
 	}
 	
+	/**
+	 * Handles edit button clicks
+	 * 
+	 * @param isNew
+	 *            <code>true</code> if this an add event
+	 */
 	protected void handleEdit(boolean isNew)
 	{
 		current = listModel.getElementAt(connectionList.getSelectedIndex());
@@ -451,6 +493,9 @@ public class PreferencesWindow extends JFrame
 		connectionName.requestFocusInWindow();
 	}
 	
+	/**
+	 * Handle deletion of items.
+	 */
 	protected void handleDelete()
 	{
 		int index = connectionList.getSelectedIndex();
@@ -464,6 +509,13 @@ public class PreferencesWindow extends JFrame
 		listModel.deleteCurrent();		
 	}
 	
+	/**
+	 * Validates the current form.
+	 * 
+	 * @param prompt
+	 *            <code>true</code> if user should be prompted to save
+	 * @return <code>true</code> if form is valid
+	 */
 	protected boolean validateForm(boolean prompt)
 	{
 		ProxyConfiguration test = listModel.getElementAt(currentIndex);
@@ -530,12 +582,21 @@ public class PreferencesWindow extends JFrame
 		return true;
 	}
 	
+	/**
+	 * Proxy list model.
+	 */
 	protected final class ProxyListModel extends AbstractListModel
 	{
 		private List<ProxyConfiguration> data = new ArrayList<ProxyConfiguration>();
 
 		private static final long serialVersionUID = 1393206449025185349L;
 		
+		/**
+		 * Gets the element at the current index.
+		 * 
+		 * @param index
+		 *            list index to query
+		 */
 		public ProxyConfiguration getElementAt(int index)
 		{
 			if (index < 0 || index >= data.size())
@@ -544,16 +605,30 @@ public class PreferencesWindow extends JFrame
 			return data.get(index);
 		}
 
+		/**
+		 * Gets the number of entries in the list.
+		 * 
+		 * @return entry count
+		 */
 		public int getSize()
 		{
 			return data.size();
 		}
 		
+		/**
+		 * Clears the list.
+		 */
 		public void clear()
 		{
 			data.clear();
 		}
 		
+		/**
+		 * Replaces the list with new data.
+		 * 
+		 * @param data
+		 *            data to use
+		 */
 		public void setData(List<ProxyConfiguration> data)
 		{
 			fireIntervalRemoved(this, 0, this.data.size());
@@ -561,11 +636,21 @@ public class PreferencesWindow extends JFrame
 			fireIntervalAdded(this, 0, this.data.size());
 		}
 		
+		/**
+		 * Gets the data associated with this list.
+		 * 
+		 * @return data
+		 */
 		public List<ProxyConfiguration> getData()
 		{
 			return data;
 		}
 		
+		/**
+		 * Adds a new element.
+		 * 
+		 * @return index of newly added element
+		 */
 		public int addNew()
 		{
 			ProxyConfiguration config = new ProxyConfiguration();
@@ -577,17 +662,29 @@ public class PreferencesWindow extends JFrame
 			return data.size() - 1;			
 		}
 		
+		/**
+		 * Updates the current element with new data.
+		 */
 		public void updateCurrent()
 		{
 			fireContentsChanged(this, connectionList.getSelectedIndex(), connectionList.getSelectedIndex());
 		}
 		
+		/**
+		 * Deletes the current element.
+		 */
 		public void deleteCurrent()
 		{
 			data.remove(connectionList.getSelectedIndex());
 			fireIntervalRemoved(this, connectionList.getSelectedIndex(), connectionList.getSelectedIndex());
 		}
 		
+		/**
+		 * Replaces the current element.
+		 * 
+		 * @param element
+		 *            element to replace with
+		 */
 		public void replaceCurrent(ProxyConfiguration element)
 		{
 			data.set(connectionList.getSelectedIndex(), element);
@@ -595,10 +692,27 @@ public class PreferencesWindow extends JFrame
 		}
 	}
 	
+	/**
+	 * Proxy list cell renderer
+	 */
 	protected final class ProxyListCellRenderer extends DefaultListCellRenderer
 	{
 		private static final long serialVersionUID = 5013801825421704387L;
 
+		/**
+		 * Gets the custom list component representing the given value.
+		 * 
+		 * @param list
+		 *            list to query
+		 * @param value
+		 *            current value
+		 * @param index
+		 *            current index
+		 * @param isSelected
+		 *            <code>true</code> if cell is selected
+		 * @param cellHasFocus
+		 *            <code>true</code> if cell has focus
+		 */
 		@Override
 		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
 		{
@@ -614,10 +728,19 @@ public class PreferencesWindow extends JFrame
 		}		
 	}
 	
+	/**
+	 * Proxy document listener
+	 */
 	protected final class ProxyDocumentListener implements DocumentListener
 	{
 		private final Component target;
 		
+		/**
+		 * Creates a new document listener wrapping the given component.
+		 * 
+		 * @param target
+		 *            target component
+		 */
 		public ProxyDocumentListener(Component target)
 		{
 			this.target = target;
@@ -683,6 +806,12 @@ public class PreferencesWindow extends JFrame
 		}
 	}
 	
+	/**
+	 * UI test entry point.
+	 * 
+	 * @param args
+	 *            unused
+	 */
 	public static void main(String[] args)
 	{
 		try

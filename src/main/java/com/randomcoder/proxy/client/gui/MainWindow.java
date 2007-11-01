@@ -59,6 +59,14 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 	
 	private TrayMenu trayMenu;
 	
+	/**
+	 * Creates a new status window.
+	 * 
+	 * @param aboutWindow
+	 *            about window
+	 * @param prefsWindow
+	 *            preferences window
+	 */
 	public MainWindow(final AboutWindow aboutWindow, final PreferencesWindow prefsWindow)
 	{
 		super("HTTP Proxy Status");
@@ -293,6 +301,12 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 			prefsWindow.addProxyConfigurationListener(this);
 	}
 	
+	/**
+	 * Sets the tray menu to associated with this application.
+	 * 
+	 * @param trayMenu
+	 *            tray menu
+	 */
 	public void setTrayMenu(TrayMenu trayMenu)
 	{
 		this.trayMenu = trayMenu;
@@ -351,7 +365,9 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 		listModel.update(config);
 	}
 	
-	
+	/**
+	 * Loads the existing configuration.
+	 */
 	public void load()
 	{
 		try
@@ -396,6 +412,11 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 		trayMenu.updateStatus(proxyCount, connCount);
 	}
 	
+	/**
+	 * Handles requests to exit the program, optionally showing confirmation.
+	 * 
+	 * @return true if shutdown should proceed
+	 */
 	public boolean handleExit()
 	{
 		boolean active = false;
@@ -422,7 +443,7 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 		
 		return true;
 	}
-	
+		
 	private void launchAll()
 	{
 		for (int i = 0; i < listModel.getSize(); i++)
@@ -434,6 +455,9 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 		updateTray();
 	}
 	
+	/**
+	 * Handles connect event processing.
+	 */
 	protected void handleConnect()
 	{
 		for (int i : connectionList.getSelectedIndices())
@@ -445,6 +469,9 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 		updateTray();
 	}
 	
+	/**
+	 * Handles disconnect event processing.
+	 */
 	protected void handleDisconnect()
 	{
 		for (int i : connectionList.getSelectedIndices())
@@ -456,6 +483,9 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 		updateTray();
 	}
 	
+	/**
+	 * Updates connect / disconnect button states
+	 */
 	protected void updateButtonState()
 	{
 		int[] selected = connectionList.getSelectedIndices();
@@ -480,7 +510,13 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 		private static final long serialVersionUID = 7645396010970634961L;
 
 		private List<ProxyConfigurationStatistics> data = new ArrayList<ProxyConfigurationStatistics>();
-		
+
+		/**
+		 * Gets the proxy element at the given index
+		 * 
+		 * @param index
+		 *            index to lookup
+		 */
 		public ProxyConfigurationStatistics getElementAt(int index)
 		{
 			if (index < 0 || index >= data.size())
@@ -489,11 +525,22 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 			return data.get(index);
 		}
 
-		public int getSize()
+		/**
+		 * Gets the number of elements in the proxy list.
+		 * 
+		 * @return size
+		 */
+		public int getSize()		
 		{
 			return data.size();
 		}		
 		
+		/**
+		 * Updates the given configuration item.
+		 * 
+		 * @param config
+		 *            configuration to update
+		 */
 		public void update(ProxyConfigurationStatistics config)
 		{
 			// update the requested entry
@@ -502,6 +549,12 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 					super.fireContentsChanged(this, i, i);
 		}
 		
+		/**
+		 * Replaces all data with new items.
+		 * 
+		 * @param data
+		 *            updated data
+		 */
 		public void setData(List<ProxyConfigurationStatistics> data)
 		{
 			super.fireIntervalRemoved(this, 0, this.data.size());
@@ -556,6 +609,21 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 			CONNECTED_FONT = temp.getFont().deriveFont(11.0f).deriveFont(Font.PLAIN);
 		}
 		
+		/**
+		 * Gets the custom list cell component.
+		 * 
+		 * @param list
+		 *            list to query
+		 * @param value
+		 *            current element
+		 * @param index
+		 *            current index
+		 * @param isSelected
+		 *            <code>true</code> if selected
+		 * @param cellHasFocus
+		 *            <code>true</code> if cell has focus
+		 * @return graphical representation of list item
+		 */
 		@Override
 		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
 		{
@@ -668,6 +736,12 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 
 	}
 	
+	/**
+	 * Application entry point for GUI.
+	 * 
+	 * @param args
+	 *            unused
+	 */
 	public static void main(String[] args)
 	{
 		try

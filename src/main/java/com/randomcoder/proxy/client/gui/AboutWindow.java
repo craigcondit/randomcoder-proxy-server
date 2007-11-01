@@ -36,6 +36,9 @@ public class AboutWindow extends JFrame
 {
 	private static final long serialVersionUID = -7783337611538845870L;
 
+	/**
+	 * Creates a new About window.
+	 */
 	public AboutWindow()
 	{
 		super("About HTTP Proxy");

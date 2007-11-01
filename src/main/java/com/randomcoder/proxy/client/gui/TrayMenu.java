@@ -171,6 +171,12 @@ public class TrayMenu
 		
 	}
 	
+	/**
+	 * Determines if shutdown can proceed, possibly showing a confirmation
+	 * dialog.
+	 * 
+	 * @return <code>true</code> if shutdown is allowed
+	 */
 	protected boolean handleExit()
 	{
 		if (mainWindow == null)
@@ -225,6 +231,14 @@ public class TrayMenu
 		this.visible = visible;
 	}
 	
+	/**
+	 * Updates the tray icon status.
+	 * 
+	 * @param proxyCount
+	 *            number of active proxy tunnels
+	 * @param connectionCount
+	 *            number of active connections
+	 */
 	public void updateStatus(int proxyCount, int connectionCount)
 	{
 		proxies = proxyCount;
