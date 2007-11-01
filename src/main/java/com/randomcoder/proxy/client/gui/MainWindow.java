@@ -373,7 +373,10 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 		
 		if (active)
 		{
-			// TODO prompt for whether to close anyway
+			Object[] options = new Object[] { "Quit", "Continue" };
+			
+			if (JOptionPane.YES_OPTION != JOptionPane.showOptionDialog(this, "There are active connections. Close anyway?", "Active connections", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[1]))
+				return false;
 		}
 		
 		// disconnect all connections

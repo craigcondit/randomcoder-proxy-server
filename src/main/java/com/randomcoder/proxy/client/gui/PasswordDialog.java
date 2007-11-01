@@ -84,15 +84,26 @@ public class PasswordDialog extends JDialog
 		userField.setMaximumSize(new Dimension(100, (int) userField.getPreferredSize().getHeight()));
 		userField.setPreferredSize(userField.getMaximumSize());
 		userField.setMinimumSize(userField.getMaximumSize());
-		userField.requestFocusInWindow();
 		
-		if (user != null)
+		if (user == null)
+		{
+			userField.requestFocusInWindow();
+		}
+		else
+		{
 			userField.setText(user);
+			userField.setEnabled(false);
+		}
 		
 		final JPasswordField passField = new JPasswordField();
 		passField.setMaximumSize(new Dimension(100, (int) passField.getPreferredSize().getHeight()));
 		passField.setPreferredSize(passField.getMaximumSize());
 		passField.setMinimumSize(passField.getMaximumSize());
+
+		if (user != null)
+		{
+			passField.requestFocusInWindow();
+		}
 		
 		cp.add(new JLabel("User name:"), new GridBagConstraints(0, 1, 1, 1, 1, 1, EAST, NONE, new Insets(10,10,0,0), 0, 0));
 		cp.add(userField, new GridBagConstraints(1, 1, 2, 1, 1, 1, WEST, HORIZONTAL, new Insets(10,10,0,10), 0, 0));
