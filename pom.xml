@@ -126,7 +126,7 @@
       		<finalName>randomcoder-proxy</finalName>
       		<archive>
       			<manifest>
-      				<mainClass>com.randomcoder.proxy.client.ProxyClient</mainClass>
+      				<mainClass>com.randomcoder.proxy.client.gui.MainWindow</mainClass>
       				<addClasspath>true</addClasspath>
       			</manifest>
       		</archive>
