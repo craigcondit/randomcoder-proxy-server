@@ -48,6 +48,7 @@ public class SwingAuthenticator implements Authenticator
 			PasswordDialog prompt = new PasswordDialog(null, name, proxyUrl, username);
 	
 			prompt.setVisible(true);
+			prompt.requestFocus();
 			
 			String user = prompt.getUsername();
 			String password = prompt.getPassword();
