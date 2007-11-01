@@ -49,8 +49,8 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 
 	private static final Logger logger = Logger.getLogger(MainWindow.class);
 	
-	private final JFrame aboutWindow;
-	private final JFrame prefsWindow;
+	private final AboutWindow aboutWindow;
+	private final PreferencesWindow prefsWindow;
 	private final ConnectionListModel listModel;
 	private final JList connectionList;
 	private final JButton connectButton;
@@ -59,7 +59,7 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 	
 	private TrayMenu trayMenu;
 	
-	public MainWindow(final JFrame aboutWindow, final JFrame prefsWindow)
+	public MainWindow(final AboutWindow aboutWindow, final PreferencesWindow prefsWindow)
 	{
 		super("HTTP Proxy Status");
 		
@@ -287,38 +287,48 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 		setLocationRelativeTo(null);
 		
 		load();
+		launchAll();
+		
+		if (prefsWindow != null)
+			prefsWindow.addProxyConfigurationListener(this);
 	}
 	
 	public void setTrayMenu(TrayMenu trayMenu)
 	{
 		this.trayMenu = trayMenu;
+		updateTray();
 	}
 	
 	public void configSaved(List<ProxyConfiguration> config)
 	{
 		// TODO merge existing configuration with proxy		
+		logger.debug("Config saved. Merging...");
 	}
 	
 	public void connectionClosed(ProxyConfigurationStatistics config)
 	{
 		listModel.update(config);
+		updateTray();
 	}
 
 	public void connectionOpened(ProxyConfigurationStatistics config)
 	{
 		listModel.update(config);
+		updateTray();
 	}
 
 	public void connectionSetup(ProxyConfigurationStatistics config)
 	{
 		listModel.update(config);
 		updateButtonState();
+		updateTray();
 	}
 
 	public void connectionTeardown(ProxyConfigurationStatistics config)
 	{
 		listModel.update(config);
 		updateButtonState();
+		updateTray();
 	}
 
 	public void connectionSetupStarting(ProxyConfigurationStatistics config)
@@ -340,6 +350,7 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 	{
 		listModel.update(config);
 	}
+	
 	
 	public void load()
 	{
@@ -363,6 +374,28 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 		}		
 	}
 
+	private void updateTray()
+	{
+		if (trayMenu == null)
+			return;
+		
+		int proxyCount = 0;
+		int connCount = 0;
+		
+		for (int i = 0; i < listModel.getSize(); i++)
+		{
+			ProxyConfigurationStatistics item = listModel.getElementAt(i);
+			
+			if (item.isConnected())
+			{
+				proxyCount++;
+				connCount += item.getActiveCount();
+			}
+		}
+		
+		trayMenu.updateStatus(proxyCount, connCount);
+	}
+	
 	public boolean handleExit()
 	{
 		boolean active = false;
@@ -390,6 +423,17 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 		return true;
 	}
 	
+	private void launchAll()
+	{
+		for (int i = 0; i < listModel.getSize(); i++)
+		{
+			ProxyConfigurationStatistics item = listModel.getElementAt(i);
+			if (!item.isConnected())
+				item.connect(auth);
+		}
+		updateTray();
+	}
+	
 	protected void handleConnect()
 	{
 		for (int i : connectionList.getSelectedIndices())
@@ -398,6 +442,7 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 			if (!item.isConnected())
 				item.connect(auth);
 		}
+		updateTray();
 	}
 	
 	protected void handleDisconnect()
@@ -408,6 +453,7 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 			if (item.isConnected())
 				item.disconnect();
 		}
+		updateTray();
 	}
 	
 	protected void updateButtonState()
