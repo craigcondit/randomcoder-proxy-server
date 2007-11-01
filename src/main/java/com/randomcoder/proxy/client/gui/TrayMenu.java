@@ -141,14 +141,7 @@ public class TrayMenu
 			{
 				public void actionPerformed(ActionEvent e)
 				{
-					// notify quit listeners
-					for (ActionListener listener : closeListeners)
-						listener.actionPerformed(new ActionEvent(this, 0, "close"));
-						
 					setVisible(false);
-					
-					// quit program
-					System.exit(0);
 				}
 			});
 			popup.add(exit);
@@ -191,20 +184,32 @@ public class TrayMenu
 	 */
 	public void setVisible(boolean visible)
 	{
-		try
+		if (visible)
 		{
-			if (icon != null)
+			// open
+			try
 			{
-				if (visible && !this.visible)
+				if (icon != null && !this.visible)
 					SystemTrayWrapper.getSystemTray().add(icon);
-				else if (this.visible && !visible)
-					SystemTrayWrapper.getSystemTray().remove(icon);
 			}
-			this.visible = visible;		
-		}
-		catch (AWTException ignored)
+			catch (AWTException ignored)
+			{					
+			}
+		}		
+		else
 		{
+			// notify quit listeners
+			for (ActionListener listener : closeListeners)
+				listener.actionPerformed(new ActionEvent(this, 0, "close"));
+			
+			// close
+			if (icon != null && this.visible)
+				SystemTrayWrapper.getSystemTray().remove(icon);
+			
+			// exit
+			System.exit(0);
 		}
+		this.visible = visible;
 	}
 	
 	/**

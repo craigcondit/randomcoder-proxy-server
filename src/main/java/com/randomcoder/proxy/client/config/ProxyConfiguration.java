@@ -48,6 +48,29 @@ public class ProxyConfiguration implements Serializable, Comparable<ProxyConfigu
 	private String remoteHost;
 	private Integer remotePort;
 	private Integer localPort;
+
+	/**
+	 * Default constructor.
+	 */
+	public ProxyConfiguration()
+	{
+	}
+	
+	/**
+	 * Copy constructor.
+	 * 
+	 * @param source
+	 *            source object to clone
+	 */
+	public ProxyConfiguration(ProxyConfiguration source)
+	{
+		name = source.name;
+		proxyUrl = source.proxyUrl;
+		username = source.username;
+		remoteHost = source.remoteHost;
+		remotePort = source.remotePort;
+		localPort = source.localPort;		
+	}
 	
 	/**
 	 * Gets the name of this configuration item.
@@ -274,15 +297,7 @@ public class ProxyConfiguration implements Serializable, Comparable<ProxyConfigu
 	@Override
 	public ProxyConfiguration clone()
 	{
-		ProxyConfiguration proxy = new ProxyConfiguration();
-		proxy.name = name;
-		proxy.proxyUrl = proxyUrl;
-		proxy.username = username;
-		proxy.remoteHost = remoteHost;
-		proxy.remotePort = remotePort;
-		proxy.localPort = localPort;
-		
-		return proxy;
+		return new ProxyConfiguration(this);
 	}
 	
 	/**
