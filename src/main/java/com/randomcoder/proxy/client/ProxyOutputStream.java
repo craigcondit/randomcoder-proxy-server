@@ -7,6 +7,8 @@ import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.*;
 import org.apache.log4j.Logger;
 
+import com.randomcoder.proxy.client.config.ProxyConfigurationListener;
+
 /**
  * <code>OutputStream</code> implementation which wraps a remote proxied
  * connection.
@@ -46,6 +48,7 @@ public class ProxyOutputStream extends OutputStream
 	private final String proxyUrl;
 	private final String connectionId;
 	private final PingThread pingThread;
+	private final ProxyConfigurationListener listener;
 	
 	/**
 	 * Creates a new output stream connected to a remote HTTP proxy.
@@ -54,10 +57,11 @@ public class ProxyOutputStream extends OutputStream
 	 *          HTTP client to use for connections
 	 * @param connectionId
 	 *          connection id
+	 *          @param listener proxy configuration listener
 	 * @throws IOException
 	 *           if an error occurs while establishing communications
 	 */
-	public ProxyOutputStream(HttpClient client, String proxyUrl, String connectionId)
+	public ProxyOutputStream(HttpClient client, String proxyUrl, String connectionId, ProxyConfigurationListener listener)
 	throws IOException
 	{
 		logger.debug("Creating proxy output stream");
@@ -65,6 +69,7 @@ public class ProxyOutputStream extends OutputStream
 		this.client = client;
 		this.proxyUrl = proxyUrl;
 		this.connectionId = connectionId;
+		this.listener = listener;
 
 		// ping to verify connection
 		ping();
@@ -99,6 +104,10 @@ public class ProxyOutputStream extends OutputStream
 			{
 				String response = post.getResponseBodyAsString();
 				logger.debug(response);
+				
+				if (listener != null)
+					listener.dataSent(null, (long) len);
+				
 				return;
 			}
 		}

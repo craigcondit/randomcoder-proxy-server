@@ -112,6 +112,9 @@ public class SocketListenerThread extends Thread
 		
 		try
 		{
+			if (listener != null)
+				listener.connectionOpened(null);
+			
 			socketInput = socket.getInputStream();
 			socketOutput = socket.getOutputStream();
 			
@@ -145,8 +148,8 @@ public class SocketListenerThread extends Thread
 			connectionId = connect();
 			logger.debug("Connection complete.");			
 			
-			proxyOutput = new ProxyOutputStream(client, proxyUrl, connectionId);
-			proxyInput = new ProxyInputStream(client, proxyUrl, connectionId);
+			proxyOutput = new ProxyOutputStream(client, proxyUrl, connectionId, listener);
+			proxyInput = new ProxyInputStream(client, proxyUrl, connectionId, listener);
 			
 			logger.debug("Proxy streams created");
 					
@@ -235,6 +238,9 @@ public class SocketListenerThread extends Thread
 			connectionManager.deleteClosedConnections();
 			
 			logger.debug("Socket listener terminated");
+			
+			if (listener != null)
+				listener.connectionClosed(null);
 		}
 	}
 	

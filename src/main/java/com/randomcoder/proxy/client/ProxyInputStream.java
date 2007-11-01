@@ -7,6 +7,8 @@ import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
 
+import com.randomcoder.proxy.client.config.ProxyConfigurationListener;
+
 /**
  * <code>InputStream</code> implementation which wraps a remote proxied
  * connection.
@@ -45,18 +47,21 @@ public class ProxyInputStream extends InputStream
 	private final String connectionId;
 	private final GetMethod connection;
 	private final InputStream inputStream;
+	private final ProxyConfigurationListener listener;
 	
 	/**
 	 * Creates a new input stream connected to a remote HTTP proxy.
 	 * 
 	 * @param client
-	 *          HTTP client to use for connections
+	 *            HTTP client to use for connections
 	 * @param connectionId
-	 *          connection id
+	 *            connection id
+	 * @param listener
+	 *            proxy configuration listener
 	 * @throws IOException
-	 *           if an error occurs while establishing communications
+	 *             if an error occurs while establishing communications
 	 */
-	public ProxyInputStream(HttpClient client, String proxyUrl, String connectionId)
+	public ProxyInputStream(HttpClient client, String proxyUrl, String connectionId, ProxyConfigurationListener listener)
 	throws IOException
 	{
 		logger.debug("Creating proxy input stream");
@@ -64,6 +69,7 @@ public class ProxyInputStream extends InputStream
 		this.client = client;
 		this.proxyUrl = proxyUrl;
 		this.connectionId = connectionId;
+		this.listener = listener;
 		
 		connection = openConnection();
 		
@@ -83,7 +89,11 @@ public class ProxyInputStream extends InputStream
 	@Override
 	public int read() throws IOException
 	{
-		return inputStream.read();
+		int result = inputStream.read();
+		if (result >= 0 && listener != null)
+			listener.dataReceived(null, 1L);
+		
+		return result;
 	}
 
 	@Override
@@ -124,13 +134,23 @@ public class ProxyInputStream extends InputStream
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException
 	{
-		return inputStream.read(b, off, len);
+		int result = inputStream.read(b, off, len);
+		
+		if (result > 0 && listener != null)
+			listener.dataReceived(null, (long) result);
+		
+		return result;
 	}
 
 	@Override
 	public int read(byte[] b) throws IOException
 	{
-		return inputStream.read(b);
+		int result = inputStream.read(b);
+		
+		if (result > 0 && listener != null)
+			listener.dataReceived(null, (long) result);
+		
+		return result;
 	}
 
 	@Override
@@ -142,7 +162,12 @@ public class ProxyInputStream extends InputStream
 	@Override
 	public long skip(long n) throws IOException
 	{
-		return inputStream.skip(n);
+		long result = inputStream.skip(n);
+
+		if (result > 0 && listener != null)
+			listener.dataReceived(null, result);
+		
+		return result;
 	}
 
 	private GetMethod openConnection()
