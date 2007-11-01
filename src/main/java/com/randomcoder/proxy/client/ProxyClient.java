@@ -183,7 +183,7 @@ public class ProxyClient
 	 * Main entry point for application.
 	 * 
 	 * @param args
-	 *            unused
+	 *            parameters for command line option
 	 */
 	public static void main(String[] args)
 	{
@@ -205,65 +205,6 @@ public class ProxyClient
 			
 			ProxyClient client = new ProxyClient(proxyUrl, remoteHost, remotePort, localPort);	
 			client.listen();
-			
-			// TODO add system tray icon and menu if supported			
-			// if not, display main configure screen
-			// also, if no tunnels could be created, show configure screen
-			
-//			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-//			
-//			if (SystemTrayWrapper.isSupported())
-//			{
-//				// system tray available
-//				SystemTrayWrapper tray = SystemTrayWrapper.getSystemTray();
-//				
-//				BufferedImage image = ImageIO.read(ProxyClient.class.getResourceAsStream("/socket.png"));
-//				
-//				PopupMenu popup = new PopupMenu();
-//				
-//				popup.setFont(new JMenuItem("test").getFont());
-//				
-//				MenuItem configure = new MenuItem("Configure");
-//				configure.addActionListener(new ActionListener()
-//				{
-//					public void actionPerformed(ActionEvent e)
-//					{
-//						// TODO open configuration screen
-//						System.err.println("Configure chosen");
-//					}
-//				});				
-//				popup.add(configure);
-//				configure.setFont(popup.getFont().deriveFont(Font.BOLD));
-//				
-//				popup.addSeparator();
-//				
-//				MenuItem exit = new MenuItem("Exit");
-//				exit.addActionListener(new ActionListener()
-//				{
-//					public void actionPerformed(ActionEvent e)
-//					{
-//						System.exit(0);
-//					}
-//				});
-//				popup.add(exit);
-//				TrayIconWrapper icon = new TrayIconWrapper(image, "Disconnected", popup);
-//				icon.addActionListener(new ActionListener()
-//				{
-//					public void actionPerformed(ActionEvent e)
-//					{
-//						// TODO open configuration screen
-//						System.err.println("Default action chosen - configure");
-//					}
-//				});
-//				icon.setImageAutoSize(true);
-//				tray.add(icon);
-//				
-//			}
-//			else
-//			{
-//				System.err.println("No system tray found");
-//			}
-			
 		}
 		catch (Throwable t)
 		{
