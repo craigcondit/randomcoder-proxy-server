@@ -40,19 +40,71 @@ public interface ProxyConfigurationListener
 	 */
 	public void configSaved(List<ProxyConfiguration> config);
 	
+	/**
+	 * Event fired when a proxy is setup.
+	 * 
+	 * @param config
+	 *            configuration which was modified
+	 */
 	public void connectionSetup(ProxyConfigurationStatistics config);
 	
+	/**
+	 * Event fired when a connection is terminated.
+	 * 
+	 * @param config
+	 *            configuration which was modified
+	 */
 	public void connectionTeardown(ProxyConfigurationStatistics config);
 	
+	/**
+	 * Event fired when a proxy begins to setup.
+	 * 
+	 * @param config
+	 *            configuration which was modified
+	 */
 	public void connectionSetupStarting(ProxyConfigurationStatistics config);
 	
+	/**
+	 * Event fired when a proxy begins to terminate.
+	 * 
+	 * @param config
+	 *            configuration which was modified
+	 */
 	public void connectionTeardownStarting(ProxyConfigurationStatistics config);
 	
+	/**
+	 * Event fired when a connection is opened.
+	 * 
+	 * @param config
+	 *            configuration which was modified
+	 */
 	public void connectionOpened(ProxyConfigurationStatistics config);
 	
+	/**
+	 * Event fired when a connection is closed.
+	 * 
+	 * @param config
+	 *            configuration which was modified
+	 */
 	public void connectionClosed(ProxyConfigurationStatistics config);
 	
+	/**
+	 * Event fired when data is sent.
+	 * 
+	 * @param config
+	 *            configuration which was modified
+	 * @param bytes
+	 *            number of bytes sent
+	 */
 	public void dataSent(ProxyConfigurationStatistics config, long bytes);
 	
+	/**
+	 * Event fired when data is received.
+	 * 
+	 * @param config
+	 *            configuration which was modified
+	 * @param bytes
+	 *            number of bytes received
+	 */
 	public void dataReceived(ProxyConfigurationStatistics config, long bytes);
 }
