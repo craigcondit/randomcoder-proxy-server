@@ -315,8 +315,63 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 	
 	public void configSaved(List<ProxyConfiguration> config)
 	{
-		// TODO merge existing configuration with proxy		
 		logger.debug("Config saved. Merging...");
+		
+		// hash connections
+		HashMap<String, ProxyConfiguration> configMap = new HashMap<String, ProxyConfiguration>();
+		for (ProxyConfiguration entry : config)
+			configMap.put(entry.getName(), entry);
+		
+		HashMap<String, ProxyConfigurationStatistics> statMap = new HashMap<String, ProxyConfigurationStatistics>();
+		
+		for (int i = 0; i < listModel.getSize(); i++)
+		{
+			ProxyConfigurationStatistics item = listModel.getElementAt(i);
+			if (item == null)
+				continue;
+			
+			if (configMap.containsKey(item.getName()))
+			{
+				// track
+				statMap.put(item.getName(), item);
+			}
+			else
+			{
+				// disconnect
+				configMap.remove(item.getName());
+				item.disconnect();				
+			}
+		}
+		
+		List<ProxyConfigurationStatistics> updated = new ArrayList<ProxyConfigurationStatistics>();
+		
+		// create new connections for new items
+		for (Map.Entry<String, ProxyConfiguration> entry : configMap.entrySet())
+		{
+			String key = entry.getKey();
+			ProxyConfiguration value = entry.getValue();
+			
+			if (statMap.containsKey(key))
+			{
+				ProxyConfigurationStatistics stat = new ProxyConfigurationStatistics(statMap.get(key), value);
+				
+				// update
+				updated.add(stat);
+				
+				// disconnect if any key items have changed
+				if (stat.isModified() && stat.isConnected())
+					stat.disconnect();
+			}
+			else
+			{
+				// create
+				updated.add(new ProxyConfigurationStatistics(value));
+			}
+		}
+		
+		Collections.sort(updated);
+		listModel.setData(updated);
+		launchAll();
 	}
 	
 	public void connectionClosed(ProxyConfigurationStatistics config)
@@ -548,7 +603,7 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 				if (config == data.get(i))
 					super.fireContentsChanged(this, i, i);
 		}
-		
+				
 		/**
 		 * Replaces all data with new items.
 		 * 

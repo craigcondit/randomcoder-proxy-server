@@ -8,7 +8,7 @@ import java.util.prefs.*;
 import org.apache.commons.lang.StringUtils;
 
 import com.randomcoder.proxy.client.ProxyClient;
-import com.randomcoder.proxy.client.validation.ValidationResult;
+import com.randomcoder.proxy.client.validation.*;
 
 /**
  * HTTP proxy configuration bean.
@@ -245,7 +245,6 @@ public class ProxyConfiguration implements Serializable, Comparable<ProxyConfigu
 			}
 		}
 		
-		
 		if (proxyUrl == null)
 			results.add(new ValidationResult("proxyUrl", "Proxy URL is required."));
 		else
@@ -270,11 +269,8 @@ public class ProxyConfiguration implements Serializable, Comparable<ProxyConfigu
 			results.add(new ValidationResult("remoteHost", "Remote host is required."));
 		else
 		{
-			try
-			{
-				InetAddress addr = InetAddress.getByName(remoteHost);
-			}
-			catch (UnknownHostException e)
+			if (!DataValidationUtils.isValidDomainName(remoteHost) && 
+				!DataValidationUtils.isValidIpAddress(remoteHost))
 			{
 				results.add(new ValidationResult("remoteHost", "Remote host is unreachable."));
 			}

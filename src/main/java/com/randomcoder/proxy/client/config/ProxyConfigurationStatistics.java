@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.apache.commons.lang.*;
 import org.apache.log4j.Logger;
 
 import com.randomcoder.proxy.client.*;
@@ -48,7 +49,9 @@ public class ProxyConfigurationStatistics extends ProxyConfiguration implements 
 	private long bytesSent;
 	private ProxyClient proxyClient;
 	private ListenThread listenThread;
-	private final ConcurrentLinkedQueue<ProxyConfigurationListener> listeners = new ConcurrentLinkedQueue<ProxyConfigurationListener>();
+	private final ConcurrentLinkedQueue<ProxyConfigurationListener> listeners;
+	
+	private boolean modified = false;
 	
 	private static final long serialVersionUID = 7675553419493897275L;
 
@@ -61,6 +64,7 @@ public class ProxyConfigurationStatistics extends ProxyConfiguration implements 
 	public ProxyConfigurationStatistics(ProxyConfiguration config)
 	{
 		super(config);
+		listeners = new ConcurrentLinkedQueue<ProxyConfigurationListener>();
 	}
 	
 	/**
@@ -73,9 +77,46 @@ public class ProxyConfigurationStatistics extends ProxyConfiguration implements 
 	{
 		super((ProxyConfiguration) source);
 		connected = source.connected;
+		starting = source.starting;
+		stopping = source.stopping;
 		activeCount = source.activeCount;
 		bytesReceived = source.bytesReceived;
 		bytesSent = source.bytesSent;
+		proxyClient = source.proxyClient;
+		listenThread = source.listenThread;
+		listeners = new ConcurrentLinkedQueue<ProxyConfigurationListener>(source.listeners);
+	}
+
+	/**
+	 * Creates a new configuration item
+	 * @param source
+	 * @param newConfig
+	 */
+	public ProxyConfigurationStatistics(ProxyConfigurationStatistics source, ProxyConfiguration config)
+	{
+		this(source);
+		name = config.name;
+		
+		if (!StringUtils.equals(proxyUrl, config.proxyUrl))
+			modified = true;
+		
+		if (!StringUtils.equals(username, config.username))
+			modified = true;
+
+		if (!StringUtils.equals(remoteHost, config.remoteHost))
+			modified = true;
+
+		if (!ObjectUtils.equals(remotePort, config.remotePort))
+			modified = true;
+
+		if (!ObjectUtils.equals(localPort, config.localPort))
+			modified = true;
+		
+		proxyUrl = config.proxyUrl;
+		username = config.username;
+		remoteHost = config.remoteHost;
+		remotePort = config.remotePort;
+		localPort = config.localPort;
 	}
 	
 	/**
@@ -115,6 +156,17 @@ public class ProxyConfigurationStatistics extends ProxyConfiguration implements 
 		for (Iterator<ProxyConfigurationListener> it = listeners.iterator(); it.hasNext();)
 			if (listener == it.next())
 				it.remove();
+	}
+	
+	/**
+	 * Checks to see if this object was modified during construction.
+	 * 
+	 * @return <code>true</code> if this object was constructed from an
+	 *         incompatible original
+	 */
+	public boolean isModified()
+	{
+		return modified;
 	}
 	
 	/**
