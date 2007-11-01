@@ -377,6 +377,8 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 	{
 		private static final long serialVersionUID = 612103334213131138L;
 		
+		// cache some resources so we can redraw quickly
+		
 		private static final Font CONNECTED_HEADING_FONT;
 		private static final Font DISCONNECTED_HEADING_FONT;
 		private static final Font CONNECTED_FONT;
@@ -425,9 +427,6 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 			JComponent parent = (JComponent)
 				super.getListCellRendererComponent(list, stats.getName(), index, isSelected, cellHasFocus);
 			
-			// TODO wrap it up
-			
-			// this needs to be fast, as it will be shown *often*
 			JPanel component = new JPanel(new GridBagLayout());
 			
 			component.setBorder(parent.getBorder());
