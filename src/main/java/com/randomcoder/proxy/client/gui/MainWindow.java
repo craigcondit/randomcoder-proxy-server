@@ -355,8 +355,9 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 			{
 				ProxyConfigurationStatistics stat = new ProxyConfigurationStatistics(statMap.get(key), value);
 				
-				// update
-				updated.add(stat);
+				// add either old or new entry to list, depending on extent of
+				// changes
+				updated.add(stat.isModified() ? stat : statMap.get(key));
 				
 				// disconnect if any key items have changed
 				if (stat.isModified() && stat.isConnected())
@@ -372,6 +373,7 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 		Collections.sort(updated);
 		listModel.setData(updated);
 		launchAll();
+		updateTray();
 	}
 	
 	public void connectionClosed(ProxyConfigurationStatistics config)

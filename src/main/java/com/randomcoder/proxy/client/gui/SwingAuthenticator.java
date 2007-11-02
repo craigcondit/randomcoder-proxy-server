@@ -41,7 +41,9 @@ public class SwingAuthenticator implements Authenticator
 	
 	public Credentials getCredentials(String name, String proxyUrl, String username, boolean force)
 	{
-		Credentials creds = credMap.get((name == null) ? "<default>" : name);
+		String key = proxyUrl + "," + ((username == null) ? "" : username);
+		
+		Credentials creds = credMap.get(key);
 		
 		if (creds == null || force)
 		{
@@ -58,7 +60,9 @@ public class SwingAuthenticator implements Authenticator
 
 			creds = new UsernamePasswordCredentials(user, password);
 			
-			credMap.put((name == null) ? "<default>" : name, creds);
+			key = proxyUrl + "," + ((user == null) ? "" : user);
+			
+			credMap.put(key, creds);
 		}
 		
 		return creds;
