@@ -77,6 +77,11 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 			
 		mac = Application.isSupported();
 		
+		// TODO Make updates actually refresh the connection list view on Mac OS X.
+		//      Seems to happen for connect / disconnect / send / receive; nothing
+		//      gets updated until the list selection changes. Could be an issue
+		//      with the Mac L&F, or more likely a threading issue.
+		
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
 		addWindowListener(new WindowAdapter()
