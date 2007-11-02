@@ -56,6 +56,7 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 	private final JButton connectButton;
 	private final JButton disconnectButton;
 	private final SwingAuthenticator auth = new SwingAuthenticator();
+	private final boolean mac;
 	
 	private TrayMenu trayMenu;
 	
@@ -74,6 +75,8 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 		this.aboutWindow = aboutWindow;
 		this.prefsWindow = prefsWindow;
 			
+		mac = Application.isSupported();
+		
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
 		addWindowListener(new WindowAdapter()
@@ -81,7 +84,7 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 			@Override
 			public void windowClosing(WindowEvent e)
 			{
-				if (trayMenu != null && trayMenu.isSupported())
+				if (mac || (trayMenu != null && trayMenu.isSupported()))
 				{
 					setVisible(false);
 				}
@@ -93,12 +96,13 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 			}			
 		});
 
-		boolean mac = Application.isSupported();
-		
 		JMenuBar menuBar = new JMenuBar();
 		
 		if (mac)
 		{
+			Application.getApplication().setEnabledPreferencesMenu(true);
+			Application.getApplication().setEnabledAboutMenu(true);
+			
 			Application.getApplication().addApplicationListener(new ApplicationAdapter()
 			{
 				@Override
