@@ -1,4 +1,4 @@
-package com.randomcoder.proxy.server;
+package com.randomcoder.proxy.handlers;
 
 import java.io.*;
 import java.text.DecimalFormat;
@@ -6,17 +6,17 @@ import java.text.DecimalFormat;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-import org.apache.log4j.Logger;
-import org.springframework.validation.BindException;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.AbstractCommandController;
+import org.apache.log4j.*;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+
+import com.randomcoder.proxy.support.*;
 
 /**
- * Controller which handles the send event on a connection. This event posts
- * data destined for the output stream of the underlying connection.
+ * Handler which accepts messages and sends them to the underlying I/O stream.
  * 
  * <pre>
- * Copyright (c) 2007, Craig Condit. All rights reserved.
+ * Copyright (c) 2010, Craig Condit. All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,7 +27,7 @@ import org.springframework.web.servlet.mvc.AbstractCommandController;
  *     this list of conditions and the following disclaimer in the documentation
  *     and/or other materials provided with the distribution.
  *     
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
@@ -40,54 +40,39 @@ import org.springframework.web.servlet.mvc.AbstractCommandController;
  * POSSIBILITY OF SUCH DAMAGE.
  * </pre>
  */
-public class SendController extends AbstractCommandController
+public class SendHandler extends AbstractHandler
 {
-	private static final Logger logger = Logger.getLogger(SendController.class);
+	private static final Logger logger = LogManager.getLogger(SendHandler.class);
 	
-	private EndpointTracker endpointTracker;
+	private final String path;
+	private final EndpointTracker tracker;
 	
-	/**
-	 * Sets the endpoint tracker to use.
-	 * 
-	 * @param endpointTracker
-	 *          endpoint tracker
-	 */
-	public void setEndpointTracker(EndpointTracker endpointTracker)
+	public SendHandler(String path, EndpointTracker tracker)
 	{
-		this.endpointTracker = endpointTracker;
+		this.path = path + "/send";
+		this.tracker = tracker;
 	}
 	
-	/**
-	 * Processes the send request.
-	 * 
-	 * @param request
-	 *          HTTP request
-	 * @param response
-	 *          HTTP response
-	 * @param command
-	 *          {@link IdCommand} instance
-	 * @param errors
-	 *          unused
-	 * @throws IOException
-	 *           if an I/O error occurs
-	 */
 	@Override
-	protected ModelAndView handle(
-			HttpServletRequest request, HttpServletResponse response,
-			Object command, BindException errors)
-	throws IOException
+	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
+	throws IOException, ServletException
 	{
-		IdCommand form = (IdCommand) command;
-
-		Endpoint endpoint = endpointTracker.getEndpoint(form.getId());
+		if (!path.equals(request.getRequestURI()))
+		{
+			return;
+		}
+		
+		String id = request.getParameter("id");
+		Endpoint endpoint = tracker.getEndpoint(id);
 		
 		if (endpoint == null)
 		{
 			if (logger.isDebugEnabled())
-				logger.debug("Send [" + form.getId() + "]: closed");
+				logger.debug("Send [" + id + "]: user=" + CurrentUser.get() + ", state=closed");
 
 			sendError(response, "Connection closed");
-			return null;
+			baseRequest.setHandled(true);
+			return;
 		}
 
 		ServletInputStream in = null;
@@ -107,7 +92,7 @@ public class SendController extends AbstractCommandController
 				{
 					endpointOutputStream.write(buf, 0, c);
 					bytes += c;
-					if (!endpointTracker.refresh(form.getId()))
+					if (!tracker.refresh(id))
 						break;
 				}
 			}
@@ -125,15 +110,15 @@ public class SendController extends AbstractCommandController
 			out.flush();
 			
 			if (logger.isDebugEnabled())
-				logger.debug("Send [" + form.getId() + "]: received " + bytes + " bytes");
+				logger.debug("Send [" + id + "]: user=" + CurrentUser.get() + ", received " + bytes + " bytes");
 		}
 		finally
 		{
 			try { if (in != null) in.close(); } catch (Throwable ignored) {}
 			try { if (out != null) out.close(); } catch (Throwable ignored) {}
 		}
-		
-		return null;
+
+		baseRequest.setHandled(true);
 	}
 	
 	private void sendError(HttpServletResponse response, String error)
@@ -153,4 +138,5 @@ public class SendController extends AbstractCommandController
 			try { if (out != null) out.close(); } catch (Throwable ignored) {}
 		}
 	}
+	
 }

@@ -1,20 +1,10 @@
-package com.randomcoder.proxy.server;
-
-import java.io.*;
-
-import javax.servlet.http.*;
-
-import org.apache.log4j.Logger;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.AbstractController;
+package com.randomcoder.proxy.support;
 
 /**
- * Controller which implements the auth operation for a proxy connection. This
- * operation simply outputs "OK" and relies on a BASIC authentication provider
- * to authenticate first.
+ * Context object which allows getting and setting the currently logged-in user.
  * 
  * <pre>
- * Copyright (c) 2007, Craig Condit. All rights reserved.
+ * Copyright (c) 2010, Craig Condit. All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -38,41 +28,22 @@ import org.springframework.web.servlet.mvc.AbstractController;
  * POSSIBILITY OF SUCH DAMAGE.
  * </pre>
  */
-public class AuthController extends AbstractController
+public class CurrentUser
 {
-	private static final Logger logger = Logger.getLogger(AuthController.class);
+	public static final ThreadLocal<String> currentUser = new ThreadLocal<String>();
 	
-	/**
-	 * Processes the auth request.
-	 * 
-	 * @param request
-	 *          HTTP request
-	 * @param response
-	 *          HTTP response
-	 * @throws IOException
-	 *           if an I/O error occurs
-	 */
-	@Override
-	protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
-	throws IOException
+	public static void logout()
 	{
-		if (logger.isDebugEnabled())
-			logger.debug("Auth");
-		
-		response.setContentType("text/plain");
-		response.setContentLength(4);
-		
-		PrintWriter out = null;
-		try
-		{
-			out = response.getWriter();
-			out.print("OK\r\n");
-		}
-		finally
-		{
-			try { if (out != null) out.close(); } catch (Throwable ignored) {}
-		}
-		
-		return null;
+		currentUser.set(null);
+	}
+	
+	public static void login(String user)
+	{
+		currentUser.set(user);
+	}
+	
+	public static String get()
+	{
+		return currentUser.get();
 	}
 }

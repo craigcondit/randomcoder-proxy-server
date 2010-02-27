@@ -1,9 +1,10 @@
-package com.randomcoder.proxy.server;
+package com.randomcoder.proxy.support;
 
-import java.io.Serializable;
+import java.io.*;
 
 /**
- * Command object which holds a String identifier.
+ * Endpoint interface. An endpoint is an encapsulation of an {@link InputStream} /
+ * {@link OutputStream} pair.
  * 
  * <pre>
  * Copyright (c) 2007, Craig Condit. All rights reserved.
@@ -30,30 +31,25 @@ import java.io.Serializable;
  * POSSIBILITY OF SUCH DAMAGE.
  * </pre>
  */
-public class IdCommand implements Serializable
+public interface Endpoint extends Closeable
 {
-	private static final long serialVersionUID = 8138040901623819594L;
-
-	private String id;
+	/**
+	 * Gets the input stream wrapped by this endpoint. Implementations must ensure
+	 * that this method may be called multiple times.
+	 * 
+	 * @return input stream
+	 * @throws IOException
+	 *           if an I/O error occurs
+	 */
+	public InputStream getInputStream() throws IOException;
 
 	/**
-	 * Gets the value of the id property.
+	 * Gets the output stream wrapped by this endpoint. Implementations must
+	 * ensure that this method may be called multiple times.
 	 * 
-	 * @return identifier
+	 * @return output stream
+	 * @throws IOException
+	 *           if an I/O error occurs
 	 */
-	public String getId()
-	{
-		return id;
-	}
-
-	/**
-	 * Sets the value of the id property.
-	 * 
-	 * @param id
-	 *          identifier
-	 */
-	public void setId(String id)
-	{
-		this.id = id;
-	}
+	public OutputStream getOutputStream() throws IOException;
 }

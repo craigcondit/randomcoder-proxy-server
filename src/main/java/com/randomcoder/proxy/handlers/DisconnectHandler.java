@@ -1,19 +1,21 @@
-package com.randomcoder.proxy.server;
+package com.randomcoder.proxy.handlers;
 
 import java.io.*;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.*;
 
-import org.apache.log4j.Logger;
-import org.springframework.validation.BindException;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.AbstractCommandController;
+import org.apache.log4j.*;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+
+import com.randomcoder.proxy.support.*;
 
 /**
- * Controller which closes an active connection.
+ * Handler which disconnects the underlying I/O stream.
  * 
  * <pre>
- * Copyright (c) 2007, Craig Condit. All rights reserved.
+ * Copyright (c) 2010, Craig Condit. All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -24,7 +26,7 @@ import org.springframework.web.servlet.mvc.AbstractCommandController;
  *     this list of conditions and the following disclaimer in the documentation
  *     and/or other materials provided with the distribution.
  *     
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
@@ -37,48 +39,32 @@ import org.springframework.web.servlet.mvc.AbstractCommandController;
  * POSSIBILITY OF SUCH DAMAGE.
  * </pre>
  */
-public class DisconnectController extends AbstractCommandController
+public class DisconnectHandler extends AbstractHandler
 {
-	private static final Logger logger = Logger.getLogger(DisconnectController.class);
+	private static final Logger logger = LogManager.getLogger(DisconnectHandler.class);
 	
-	private EndpointTracker endpointTracker;
+	private final String path;
+	private final EndpointTracker tracker;
 	
-	/**
-	 * Sets the endpoint tracker to use.
-	 * 
-	 * @param endpointTracker
-	 *          endpoint tracker
-	 */
-	public void setEndpointTracker(EndpointTracker endpointTracker)
+	public DisconnectHandler(String path, EndpointTracker tracker)
 	{
-		this.endpointTracker = endpointTracker;
+		this.path = path + "/disconnect";
+		this.tracker = tracker;
 	}
 	
-	/**
-	 * Processes the disconnect request.
-	 * 
-	 * @param request
-	 *          HTTP request
-	 * @param response
-	 *          HTTP response
-	 * @param command
-	 *          {@link IdCommand} instance
-	 * @param errors
-	 *          unused
-	 * @throws IOException
-	 *           if an I/O error occurs
-	 */
 	@Override
-	protected ModelAndView handle(
-			HttpServletRequest request, HttpServletResponse response,
-			Object command, BindException errors)
-	throws IOException
+	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
+	throws IOException, ServletException
 	{
-		IdCommand form = (IdCommand) command;
+		if (!path.equals(request.getRequestURI()))
+		{
+			return;
+		}
 		
-		endpointTracker.remove(form.getId());
+		String id = request.getParameter("id");
+		tracker.remove(id);
 		
-		logger.info("Disconnect [" + form.getId() + "]");
+		logger.info("Disconnect [" + id + "]: user=" + CurrentUser.get());
 		
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.setContentType("text/plain");
@@ -93,7 +79,8 @@ public class DisconnectController extends AbstractCommandController
 		{
 			try { if (out != null) out.close(); } catch (Throwable ignored) {}
 		}
-		
-		return null;
+
+		baseRequest.setHandled(true);
 	}
+
 }

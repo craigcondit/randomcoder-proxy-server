@@ -1,5 +1,5 @@
 /**
- * HTTP tunneling proxy server implementation. 
+ * Support classes. 
  * 
  * <pre>
  * Copyright (c) 2007, Craig Condit. All rights reserved.
@@ -26,4 +26,4 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * </pre> 
  */
-package com.randomcoder.proxy.server;
+package com.randomcoder.proxy;

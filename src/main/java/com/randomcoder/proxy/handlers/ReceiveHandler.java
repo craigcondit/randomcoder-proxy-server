@@ -1,22 +1,23 @@
-package com.randomcoder.proxy.server;
+package com.randomcoder.proxy.handlers;
 
 import java.io.*;
 import java.net.SocketException;
 
-import javax.servlet.ServletOutputStream;
+import javax.servlet.*;
 import javax.servlet.http.*;
 
-import org.apache.log4j.Logger;
-import org.springframework.validation.BindException;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.AbstractCommandController;
+import org.apache.log4j.*;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+
+import com.randomcoder.proxy.support.*;
 
 /**
- * Controller which handles the receive event on a connection. This event
- * flushes data periodically from the connected socket.
+ * Handler which establishes and maintains a receive connection to the
+ * underlying I/O stream.
  * 
  * <pre>
- * Copyright (c) 2007, Craig Condit. All rights reserved.
+ * Copyright (c) 2010, Craig Condit. All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,7 +28,7 @@ import org.springframework.web.servlet.mvc.AbstractCommandController;
  *     this list of conditions and the following disclaimer in the documentation
  *     and/or other materials provided with the distribution.
  *     
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
@@ -40,58 +41,44 @@ import org.springframework.web.servlet.mvc.AbstractCommandController;
  * POSSIBILITY OF SUCH DAMAGE.
  * </pre>
  */
-public class ReceiveController extends AbstractCommandController
+
+public class ReceiveHandler extends AbstractHandler
 {
-	private static final Logger logger = Logger.getLogger(ReceiveController.class);
+	private static final Logger logger = LogManager.getLogger(ReceiveHandler.class);
 	
-	private EndpointTracker endpointTracker;
+	private final String path;
+	private final EndpointTracker tracker;
 	
-	/**
-	 * Sets the endpoint tracker to use.
-	 * 
-	 * @param endpointTracker
-	 *          endpoint tracker
-	 */
-	public void setEndpointTracker(EndpointTracker endpointTracker)
+	public ReceiveHandler(String path, EndpointTracker tracker)
 	{
-		this.endpointTracker = endpointTracker;
+		this.path = path + "/receive";
+		this.tracker = tracker;
 	}
 	
-	/**
-	 * Processes the receive request.
-	 * 
-	 * @param request
-	 *          HTTP request
-	 * @param response
-	 *          HTTP response
-	 * @param command
-	 *          {@link IdCommand} instance
-	 * @param errors
-	 *          unused
-	 * @throws IOException
-	 *           if an I/O error occurs
-	 */
 	@Override
-	protected ModelAndView handle(
-			HttpServletRequest request, HttpServletResponse response,
-			Object command, BindException errors)
-	throws IOException
+	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
+	throws IOException, ServletException
 	{
-		IdCommand form = (IdCommand) command;
-
-		Endpoint endpoint = endpointTracker.getEndpoint(form.getId());
+		if (!path.equals(request.getRequestURI()))
+		{
+			return;
+		}
+		
+		String id = request.getParameter("id");
+		Endpoint endpoint = tracker.getEndpoint(id);
 		
 		if (endpoint == null)
 		{
 			if (logger.isDebugEnabled())
-				logger.debug("Receive [" + form.getId() + "]: closed");
+				logger.debug("Receive [" + id+ "]: user=" + CurrentUser.get() + ", state=closed");
 
 			sendError(response, "Connection closed");
-			return null;
+			baseRequest.setHandled(true);
+			return;
 		}
 
 		if (logger.isDebugEnabled())
-			logger.debug("Receive [" + form.getId() + "]: active");
+			logger.debug("Receive [" + id + "]: user=" + CurrentUser.get() + ", state=active");
 		
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.setContentType("application/octet-stream");
@@ -118,7 +105,7 @@ public class ReceiveController extends AbstractCommandController
 					out.write(buf, 0, c);
 					out.flush();
 					
-					if (!endpointTracker.refresh(form.getId()))
+					if (!tracker.refresh(id))
 						break;
 				}
 			}
@@ -126,14 +113,14 @@ public class ReceiveController extends AbstractCommandController
 		}
 		catch (SocketException e)
 		{
-			logger.debug("Receive [" + form.getId() + "]: " + e.getMessage());
+			logger.debug("Receive [" + id + "]: user=" + CurrentUser.get() + ", error=" + e.getMessage());
 		}
 		finally
 		{
 			try { if (out != null) out.close(); } catch (Throwable ignored) {}
 		}
-		
-		return null;
+
+		baseRequest.setHandled(true);
 	}
 	
 	private void sendError(HttpServletResponse response, String error)
@@ -153,4 +140,5 @@ public class ReceiveController extends AbstractCommandController
 			try { if (out != null) out.close(); } catch (Throwable ignored) {}
 		}
 	}
+	
 }

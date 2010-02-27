@@ -1,4 +1,4 @@
-package com.randomcoder.proxy.server;
+package com.randomcoder.proxy.support;
 
 import java.io.*;
 import java.net.Socket;

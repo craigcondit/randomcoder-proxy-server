@@ -1,17 +1,16 @@
-package com.randomcoder.proxy.server;
+package com.randomcoder.proxy.support;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.*;
 
 /**
  * Endpoint tracker which watches Endpoint instances and cleans them up after a
  * specified period of inactivity.
  * 
  * <pre>
- * Copyright (c) 2007, Craig Condit. All rights reserved.
+ * Copyright (c) 2007-2010, Craig Condit. All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,69 +34,62 @@ import org.springframework.beans.factory.*;
  * POSSIBILITY OF SUCH DAMAGE.
  * </pre>
  */
-public class EndpointTracker implements InitializingBean, DisposableBean
+public class EndpointTracker
 {
+	/**
+	 * Logger instance.
+	 */
 	protected static final Logger logger = Logger.getLogger(EndpointTracker.class);
 	
 	/**
-	 * Map of ids to endpoints
+	 * Map of ids to endpoints.
 	 */
 	protected final ConcurrentHashMap<String, Endpoint> endpointMap
 		= new ConcurrentHashMap<String, Endpoint>();
 	
 	/**
-	 * Map of ids to expiration times
+	 * Map of ids to expiration times.
 	 */
 	protected final ConcurrentHashMap<String, Long> expirationMap
 		= new ConcurrentHashMap<String, Long>();
 
 	/**
-	 * Maximum idle time in milliseconds
+	 * Maximum idle time in milliseconds;
 	 */
-	protected long maxIdle = 30000L;
+	protected final long maxIdle;
 	
 	/**
-	 * How often stale objects are purged
+	 * Time to sleep between eviction runs in milliseconds.
 	 */
-	protected long evictionFrequency = 30000L;
-	
-	private ReaperThread reaperThread = null;
+	protected final long evictionFrequency;	
+
+	private final ReaperThread reaperThread;
 
 	/**
-	 * Sets the maximum before inactive endpoints will be closed.
+	 * Creats a new endpoint tracker using default values.
+	 */
+	public EndpointTracker()
+	{
+		this(30000L, 30000L);
+	}
+
+	/**
+	 * Creates a new endpoint tracker.
 	 * 
 	 * @param maxIdle
-	 *          inactivity time in milliseconds
+	 *          maximum time before idle threads are killed (in milliseconds)
+	 * @param evictionFrequency
+	 *          how often to perform evictions
 	 */
-	public void setMaxIdle(long maxIdle)
+	public EndpointTracker(long maxIdle, long evictionFrequency)
 	{
 		this.maxIdle = maxIdle;
-	}
-
-	/**
-	 * Sets the amount of time between eviction runs.
-	 * 
-	 * @param evictionFrequency
-	 *          frequency between eviction runs in milliseconds
-	 */
-	public void setEvictionFrequency(long evictionFrequency)
-	{
 		this.evictionFrequency = evictionFrequency;
-	}
-	
-	/**
-	 * Initializes the endpoint tracker.
-	 */
-	public void afterPropertiesSet() throws Exception
-	{
 		reaperThread = new ReaperThread();
 		reaperThread.start();
 		logger.info("Endpoint tracker initialized");
 	}
 
-	/**
-	 * Shuts down the endpoint tracker, closing all active endpoints.
-	 */
 	public void destroy()
 	{
 		logger.info("Endpoint tracker shutting down...");
