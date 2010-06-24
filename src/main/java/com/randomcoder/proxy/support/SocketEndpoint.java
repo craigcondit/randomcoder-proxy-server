@@ -54,16 +54,19 @@ public class SocketEndpoint implements Endpoint
 		output = socket.getOutputStream();
 	}
 	
+	@Override
 	public InputStream getInputStream()
 	{
 		return input;
 	}
 
+	@Override
 	public OutputStream getOutputStream()
 	{
 		return output;
 	}
 
+	@Override
 	public void close()
 	{
 		try { input.close(); } catch (Throwable ignored) {}
