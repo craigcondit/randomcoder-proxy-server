@@ -46,6 +46,7 @@ import com.randomcoder.proxy.client.validation.ValidationResult;
  * POSSIBILITY OF SUCH DAMAGE.
  * </pre>
  */
+@SuppressWarnings("synthetic-access")
 public class PreferencesWindow extends JFrame
 {
 	private static final long serialVersionUID = 3758601335874262188L;
@@ -553,25 +554,18 @@ public class PreferencesWindow extends JFrame
 							dirty = false;
 							return true;
 						}
-						else
-						{
-							// revert changes
-							current = original.clone();
-							listModel.replaceCurrent(current);
-							dirty = false;
-							return true;
-						}
+						
+						// revert changes
+						current = original.clone();
+						listModel.replaceCurrent(current);
+						dirty = false;
+						return true;
 					}
-					else
-					{
-						return false;
-					}
+					return false;
 				}
-				else
-				{
-					// show a message dialog
-					JOptionPane.showMessageDialog(this, "The following problems must be corrected:\r\n\r\n" + buf.toString(), "Validation errors", JOptionPane.WARNING_MESSAGE);
-				}
+				
+				// show a message dialog
+				JOptionPane.showMessageDialog(this, "The following problems must be corrected:\r\n\r\n" + buf.toString(), "Validation errors", JOptionPane.WARNING_MESSAGE);
 				
 				// reset to previously selected value
 				connectionList.setSelectedIndex(currentIndex);
@@ -746,11 +740,11 @@ public class PreferencesWindow extends JFrame
 			this.target = target;
 		}
 		
-		public void changedUpdate(DocumentEvent e) { update(e); }
-		public void insertUpdate(DocumentEvent e) { update(e); }
-		public void removeUpdate(DocumentEvent e) { update(e); }
+		public void changedUpdate(DocumentEvent e) { update(); }
+		public void insertUpdate(DocumentEvent e) { update(); }
+		public void removeUpdate(DocumentEvent e) { update(); }
 		
-		private void update(DocumentEvent e)
+		private void update()
 		{
 			if (current == null)
 				return;

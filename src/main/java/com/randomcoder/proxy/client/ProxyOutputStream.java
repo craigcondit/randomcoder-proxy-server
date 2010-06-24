@@ -106,7 +106,7 @@ public class ProxyOutputStream extends OutputStream
 				logger.debug(response);
 				
 				if (listener != null)
-					listener.dataSent(null, (long) len);
+					listener.dataSent(null, len);
 				
 				return;
 			}

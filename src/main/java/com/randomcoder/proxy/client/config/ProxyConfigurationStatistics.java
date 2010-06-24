@@ -37,6 +37,7 @@ import com.randomcoder.proxy.client.*;
  * POSSIBILITY OF SUCH DAMAGE.
  * </pre>
  */
+@SuppressWarnings("synthetic-access")
 public class ProxyConfigurationStatistics extends ProxyConfiguration implements ProxyConfigurationListener
 {
 	private static final Logger logger = Logger.getLogger(ProxyConfigurationStatistics.class);
@@ -75,7 +76,7 @@ public class ProxyConfigurationStatistics extends ProxyConfiguration implements 
 	 */
 	public ProxyConfigurationStatistics(ProxyConfigurationStatistics source)
 	{
-		super((ProxyConfiguration) source);
+		super(source);
 		connected = source.connected;
 		starting = source.starting;
 		stopping = source.stopping;

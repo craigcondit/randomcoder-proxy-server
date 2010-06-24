@@ -2,8 +2,6 @@ package com.randomcoder.proxy.client.validation;
 
 import java.util.Locale;
 
-import org.apache.log4j.Logger;
-
 /**
  * Convenience methods to validate common data types.
  * 
@@ -34,8 +32,6 @@ import org.apache.log4j.Logger;
  */
 public final class DataValidationUtils
 {
-	private static final Logger logger = Logger.getLogger(DataValidationUtils.class);
-
 	private DataValidationUtils()
 	{
 	}

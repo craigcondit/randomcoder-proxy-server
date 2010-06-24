@@ -43,14 +43,13 @@ import com.randomcoder.proxy.client.config.*;
  * POSSIBILITY OF SUCH DAMAGE.
  * </pre>
  */
+@SuppressWarnings("synthetic-access")
 public class MainWindow extends JFrame implements ProxyConfigurationListener
 {
 	private static final long serialVersionUID = -1041159986250381985L;
 
 	private static final Logger logger = Logger.getLogger(MainWindow.class);
 	
-	private final AboutWindow aboutWindow;
-	private final PreferencesWindow prefsWindow;
 	private final ConnectionListModel listModel;
 	private final JList connectionList;
 	private final JButton connectButton;
@@ -71,9 +70,6 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 	public MainWindow(final AboutWindow aboutWindow, final PreferencesWindow prefsWindow)
 	{
 		super("HTTP Proxy Status");
-		
-		this.aboutWindow = aboutWindow;
-		this.prefsWindow = prefsWindow;
 			
 		mac = Application.isSupported();
 		
@@ -249,7 +245,7 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 			}
 		});
 		
-		JScrollPane conScroll = new JScrollPane(connectionList, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER); 
+		JScrollPane conScroll = new JScrollPane(connectionList, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER); 
 		conScroll.setMinimumSize(new Dimension(400, 300));
 		conScroll.setPreferredSize(conScroll.getMinimumSize());
 		
@@ -751,15 +747,15 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 				}
 				else if (sent < 1048576L)
 				{
-					text1 = df2.format((double) sent / 1024D) + " KiB sent";
+					text1 = df2.format(sent / 1024D) + " KiB sent";
 				}
 				else if (sent < 107374182L)
 				{
-					text1 = df2.format((double) sent / 1048576D) + " MiB sent";
+					text1 = df2.format(sent / 1048576D) + " MiB sent";
 				}
 				else
 				{
-					text1 = df2.format((double) sent / 107374182D) + " GiB sent";
+					text1 = df2.format(sent / 107374182D) + " GiB sent";
 				}
 				
 				JLabel line1 = new JLabel(text1);
@@ -777,15 +773,15 @@ public class MainWindow extends JFrame implements ProxyConfigurationListener
 				}
 				else if (received < 1048576L)
 				{
-					text2 = df2.format((double) received / 1024D) + " KiB received";
+					text2 = df2.format(received / 1024D) + " KiB received";
 				}
 				else if (received < 107374182L)
 				{
-					text2 = df2.format((double) received / 1048576D) + " MiB received";
+					text2 = df2.format(received / 1048576D) + " MiB received";
 				}
 				else
 				{
-					text2 = df2.format((double) received / 107374182D) + " GiB received";
+					text2 = df2.format(received / 107374182D) + " GiB received";
 				}
 				
 				JLabel line2 = new JLabel(text2);

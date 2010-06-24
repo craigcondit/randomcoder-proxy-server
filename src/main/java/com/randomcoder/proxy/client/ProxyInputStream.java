@@ -137,7 +137,7 @@ public class ProxyInputStream extends InputStream
 		int result = inputStream.read(b, off, len);
 		
 		if (result > 0 && listener != null)
-			listener.dataReceived(null, (long) result);
+			listener.dataReceived(null, result);
 		
 		return result;
 	}
@@ -148,7 +148,7 @@ public class ProxyInputStream extends InputStream
 		int result = inputStream.read(b);
 		
 		if (result > 0 && listener != null)
-			listener.dataReceived(null, (long) result);
+			listener.dataReceived(null, result);
 		
 		return result;
 	}

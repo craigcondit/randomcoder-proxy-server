@@ -40,8 +40,6 @@ public class TrayMenu
 {
 	private final boolean supported;
 	private final MainWindow mainWindow;
-	private final AboutWindow aboutWindow;
-	private final PreferencesWindow prefsWindow;
 	private final TrayIconWrapper icon;
 	private final LinkedList<ActionListener> closeListeners = new LinkedList<ActionListener>();
 	private int proxies = 0;
@@ -62,8 +60,6 @@ public class TrayMenu
 	public TrayMenu(final MainWindow mainWindow, final AboutWindow aboutWindow, final PreferencesWindow prefsWindow)
 	{		
 		this.mainWindow = mainWindow;
-		this.aboutWindow = aboutWindow;
-		this.prefsWindow = prefsWindow;
 		
 		supported = SystemTrayWrapper.isSupported();
 		
