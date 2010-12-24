@@ -9,7 +9,7 @@
 		</layout>
 	</appender>
 	
-	<logger name="com.randomcoder">
+	<logger name="org.randomcoder">
 		<level value="info" />
 	</logger>
 
