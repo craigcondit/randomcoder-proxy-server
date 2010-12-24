@@ -3,10 +3,10 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>randomcoder-base</artifactId>
-    <groupId>com.randomcoder</groupId>
-    <version>8</version>
+    <groupId>org.randomcoder</groupId>
+    <version>11</version>
   </parent>
-  <groupId>com.randomcoder</groupId>
+  <groupId>org.randomcoder</groupId>
   <artifactId>randomcoder-proxy-client</artifactId>
   <packaging>jar</packaging>
   <name>Randomcoder Proxy Client</name>
@@ -62,14 +62,14 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-    	<groupId>com.randomcoder</groupId>
+    	<groupId>org.randomcoder</groupId>
     	<artifactId>randomcoder-system-tray</artifactId>
-    	<version>1.0.0</version>
+    	<version>1.1.0</version>
     </dependency>
     <dependency>
-    	<groupId>com.randomcoder</groupId>
+    	<groupId>org.randomcoder</groupId>
     	<artifactId>randomcoder-mac-gui</artifactId>
-    	<version>1.0.0</version>
+    	<version>1.1.0</version>
     </dependency>
     <dependency>
     	<groupId>commons-httpclient</groupId>
