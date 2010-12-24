@@ -1,4 +1,4 @@
-package com.randomcoder.proxy.client;
+package org.randomcoder.proxy.client;
 
 import java.io.*;
 import java.net.URLEncoder;
@@ -7,7 +7,7 @@ import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
 
-import com.randomcoder.proxy.client.config.ProxyConfigurationListener;
+import org.randomcoder.proxy.client.config.ProxyConfigurationListener;
 
 /**
  * <code>InputStream</code> implementation which wraps a remote proxied

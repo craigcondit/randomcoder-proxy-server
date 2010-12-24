@@ -1,4 +1,4 @@
-package com.randomcoder.proxy.client.config;
+package org.randomcoder.proxy.client.config;
 
 import java.io.Serializable;
 import java.net.*;
@@ -7,8 +7,8 @@ import java.util.prefs.*;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.randomcoder.proxy.client.ProxyClient;
-import com.randomcoder.proxy.client.validation.*;
+import org.randomcoder.proxy.client.ProxyClient;
+import org.randomcoder.proxy.client.validation.*;
 
 /**
  * HTTP proxy configuration bean.

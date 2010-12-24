@@ -1,4 +1,4 @@
-package com.randomcoder.proxy.client;
+package org.randomcoder.proxy.client;
 
 import java.io.*;
 import java.net.*;
@@ -9,7 +9,7 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
 
-import com.randomcoder.proxy.client.config.ProxyConfigurationListener;
+import org.randomcoder.proxy.client.config.ProxyConfigurationListener;
 
 /**
  * Thread which handles communication between a local socket and a remote HTTP

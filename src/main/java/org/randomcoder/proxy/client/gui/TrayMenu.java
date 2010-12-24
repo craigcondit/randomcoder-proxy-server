@@ -1,4 +1,4 @@
-package com.randomcoder.proxy.client.gui;
+package org.randomcoder.proxy.client.gui;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -6,7 +6,7 @@ import java.util.*;
 
 import javax.swing.*;
 
-import com.randomcoder.systray.*;
+import org.randomcoder.systray.*;
 
 /**
  * Tray icon implementation for HTTP proxy.

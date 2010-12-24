@@ -1,4 +1,4 @@
-package com.randomcoder.proxy.client;
+package org.randomcoder.proxy.client;
 
 import java.io.*;
 

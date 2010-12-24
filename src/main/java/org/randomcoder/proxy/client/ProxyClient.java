@@ -1,4 +1,4 @@
-package com.randomcoder.proxy.client;
+package org.randomcoder.proxy.client;
 
 import java.io.IOException;
 import java.net.*;
@@ -6,8 +6,8 @@ import java.util.*;
 
 import org.apache.log4j.Logger;
 
-import com.randomcoder.proxy.client.config.ProxyConfigurationListener;
-import com.randomcoder.proxy.client.gui.SwingAuthenticator;
+import org.randomcoder.proxy.client.config.ProxyConfigurationListener;
+import org.randomcoder.proxy.client.gui.SwingAuthenticator;
 
 /**
  * HTTP proxy client.

@@ -1,4 +1,4 @@
-package com.randomcoder.proxy.client.config;
+package org.randomcoder.proxy.client.config;
 
 import java.util.List;
 

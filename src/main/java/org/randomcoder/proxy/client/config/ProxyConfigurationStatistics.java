@@ -1,4 +1,4 @@
-package com.randomcoder.proxy.client.config;
+package org.randomcoder.proxy.client.config;
 
 import java.io.IOException;
 import java.util.*;
@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.commons.lang.*;
 import org.apache.log4j.Logger;
 
-import com.randomcoder.proxy.client.*;
+import org.randomcoder.proxy.client.*;
 
 /**
  * Class to track statistics and status of a proxy connection.

@@ -1,4 +1,4 @@
-package com.randomcoder.proxy.client.validation;
+package org.randomcoder.proxy.client.validation;
 
 import java.util.Locale;
 

@@ -1,4 +1,4 @@
-package com.randomcoder.proxy.client.gui;
+package org.randomcoder.proxy.client.gui;
 
 import static javax.swing.ScrollPaneConstants.*;
 
@@ -15,8 +15,8 @@ import javax.swing.event.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.randomcoder.proxy.client.config.*;
-import com.randomcoder.proxy.client.validation.ValidationResult;
+import org.randomcoder.proxy.client.config.*;
+import org.randomcoder.proxy.client.validation.ValidationResult;
 
 /**
  * Main window for HTTP proxy.

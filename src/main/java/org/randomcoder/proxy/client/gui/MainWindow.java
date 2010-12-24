@@ -1,4 +1,4 @@
-package com.randomcoder.proxy.client.gui;
+package org.randomcoder.proxy.client.gui;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -12,8 +12,8 @@ import javax.swing.event.*;
 
 import org.apache.log4j.Logger;
 
-import com.randomcoder.apple.eawt.*;
-import com.randomcoder.proxy.client.config.*;
+import org.randomcoder.apple.eawt.*;
+import org.randomcoder.proxy.client.config.*;
 
 /**
  * Main window for HTTP proxy.
