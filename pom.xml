@@ -12,12 +12,12 @@
   <name>Randomcoder Proxy Client</name>
   <version>1.0-SNAPSHOT</version>
   <description>HTTP Tunneling Proxy Client</description>
-  <url>http://randomcoder.com/maven/site/randomcoder-proxy-client/</url>
+  <url>http://randomcoder.org/maven/site/randomcoder-proxy-client/</url>
   <inceptionYear>2007</inceptionYear>
   <scm>
-    <connection>scm:svn:http://randomcoder.com/repos/public/randomcoder-proxy-client/trunk</connection>
-    <developerConnection>scm:svn:https://randomcoder.com/repos/public/randomcoder-proxy-client/trunk</developerConnection>
-    <url>http://randomcoder.com/repos/public/randomcoder-proxy-client/trunk</url>
+    <connection>scm:svn:http://randomcoder.org/repos/public/randomcoder-proxy-client/trunk</connection>
+    <developerConnection>scm:svn:https://randomcoder.org/repos/public/randomcoder-proxy-client/trunk</developerConnection>
+    <url>http://randomcoder.org/repos/public/randomcoder-proxy-client/trunk</url>
   </scm>
   <profiles>
   	<profile>
@@ -40,7 +40,7 @@
       </snapshots>
       <id>randomcoder-release</id>
       <name>Randomcoder Release</name>
-      <url>http://randomcoder.com/maven/repository/release</url>
+      <url>http://randomcoder.org/maven/repository/release</url>
     </repository>
     <repository>
       <releases>
@@ -51,7 +51,7 @@
       </snapshots>
       <id>randomcoder-snapshot</id>
       <name>Randomcoder Snapshot</name>
-      <url>http://randomcoder.com/maven/repository/snapshot</url>
+      <url>http://randomcoder.org/maven/repository/snapshot</url>
     </repository>
   </repositories>  
   <dependencies>
@@ -120,7 +120,7 @@
 					<finalName>randomcoder-proxy</finalName>
       		<archive>
       			<manifest>
-      				<mainClass>com.randomcoder.proxy.client.gui.MainWindow</mainClass>
+      				<mainClass>org.randomcoder.proxy.client.gui.MainWindow</mainClass>
       				<addClasspath>false</addClasspath>
       			</manifest>
       		</archive>
@@ -144,7 +144,7 @@
       		<finalName>randomcoder-proxy</finalName>
       		<archive>
       			<manifest>
-      				<mainClass>com.randomcoder.proxy.client.gui.MainWindow</mainClass>
+      				<mainClass>org.randomcoder.proxy.client.gui.MainWindow</mainClass>
       				<addClasspath>true</addClasspath>
       			</manifest>
       		</archive>
