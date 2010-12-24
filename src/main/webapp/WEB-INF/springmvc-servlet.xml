@@ -10,7 +10,7 @@
 	<bean class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
 
 	<bean id="abstractProxyController" abstract="true">
-		<property name="commandClass" value="com.randomcoder.proxy.server.IdCommand" />
+		<property name="commandClass" value="org.randomcoder.proxy.server.IdCommand" />
 		<property name="endpointTracker" ref="endpointTracker" />
 		<property name="requireSession" value="false" />
 		<property name="cacheSeconds" value="0" />
@@ -23,14 +23,14 @@
 
 	<bean
 			id="connectController"
-			class="com.randomcoder.proxy.server.ConnectController"
+			class="org.randomcoder.proxy.server.ConnectController"
 			parent="abstractProxyController">
-		<property name="commandClass" value="com.randomcoder.proxy.server.ConnectCommand" />
+		<property name="commandClass" value="org.randomcoder.proxy.server.ConnectCommand" />
 	</bean>
 
 	<bean
 			id="sendController"
-			class="com.randomcoder.proxy.server.SendController"
+			class="org.randomcoder.proxy.server.SendController"
 			parent="abstractProxyController">
 		<property name="supportedMethods">
 			<list>
@@ -39,7 +39,7 @@
 		</property>
 	</bean>
 
-	<bean id="authController" class="com.randomcoder.proxy.server.AuthController">
+	<bean id="authController" class="org.randomcoder.proxy.server.AuthController">
 		<property name="requireSession" value="false" />
 		<property name="cacheSeconds" value="0" />
 		<property name="supportedMethods">
@@ -51,17 +51,17 @@
 	
 	<bean
 			id="receiveController"
-			class="com.randomcoder.proxy.server.ReceiveController"
+			class="org.randomcoder.proxy.server.ReceiveController"
 			parent="abstractProxyController" />
 
 	<bean
 			id="pingController"
-			class="com.randomcoder.proxy.server.PingController"
+			class="org.randomcoder.proxy.server.PingController"
 			parent="abstractProxyController" />
 
 	<bean
 			id="disconnectController"
-			class="com.randomcoder.proxy.server.DisconnectController"
+			class="org.randomcoder.proxy.server.DisconnectController"
 			parent="abstractProxyController" />
 
 	<bean id="handlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">

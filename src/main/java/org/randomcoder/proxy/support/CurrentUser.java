@@ -1,4 +1,4 @@
-package com.randomcoder.proxy.support;
+package org.randomcoder.proxy.support;
 
 /**
  * Context object which allows getting and setting the currently logged-in user.

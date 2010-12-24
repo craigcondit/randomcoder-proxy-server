@@ -9,7 +9,7 @@
 	<!-- Enforce @Required annotations -->
 	<bean class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
 
-	<bean id="endpointTracker" class="com.randomcoder.proxy.server.EndpointTracker">
+	<bean id="endpointTracker" class="org.randomcoder.proxy.server.EndpointTracker">
 		<property name="maxIdle" value="60000" />
 		<property name="evictionFrequency" value="30000" />
 	</bean>

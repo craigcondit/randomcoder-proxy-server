@@ -1,4 +1,4 @@
-package com.randomcoder.proxy;
+package org.randomcoder.proxy;
 
 import java.io.*;
 import java.security.SecureRandom;
@@ -9,8 +9,8 @@ import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 
-import com.randomcoder.proxy.handlers.*;
-import com.randomcoder.proxy.support.EndpointTracker;
+import org.randomcoder.proxy.handlers.*;
+import org.randomcoder.proxy.support.EndpointTracker;
 
 /**
  * HTTP tunneling proxy server.

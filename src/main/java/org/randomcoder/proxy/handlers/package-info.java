@@ -26,4 +26,4 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * </pre> 
  */
-package com.randomcoder.proxy.handlers;
+package org.randomcoder.proxy.handlers;

@@ -1,4 +1,4 @@
-package com.randomcoder.proxy.handlers;
+package org.randomcoder.proxy.handlers;
 
 import java.io.*;
 
@@ -9,7 +9,7 @@ import org.apache.log4j.*;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
-import com.randomcoder.proxy.support.*;
+import org.randomcoder.proxy.support.*;
 
 /**
  * Handler which acts as a keepalive.

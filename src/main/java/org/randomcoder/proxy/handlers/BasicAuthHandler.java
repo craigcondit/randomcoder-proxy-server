@@ -1,4 +1,4 @@
-package com.randomcoder.proxy.handlers;
+package org.randomcoder.proxy.handlers;
 
 import java.io.*;
 import java.util.*;
@@ -11,7 +11,7 @@ import org.eclipse.jetty.http.security.*;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
-import com.randomcoder.proxy.support.CurrentUser;
+import org.randomcoder.proxy.support.CurrentUser;
 
 /**
  * BASIC authentication handler. 
