@@ -70,7 +70,7 @@ public class EndpointTracker
 	 */
 	public EndpointTracker()
 	{
-		this(30000L, 30000L);
+		this(300000L, 30000L);
 	}
 
 	/**
