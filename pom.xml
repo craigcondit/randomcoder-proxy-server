@@ -17,7 +17,7 @@
 	<scm>
 		<connection>scm:git:https://scm.randomcoder.org/git/randomcoder-proxy-client</connection>
 		<developerConnection>scm:git:https://scm.randomcoder.org/git/randomcoder-proxy-client</developerConnection>
-		<url>http://gitlist.randomcoder.org/randomcoder-proxy-client/trunk</url>
+		<url>http://gitlist.randomcoder.org/randomcoder-proxy-client/</url>
 	</scm>
 	<distributionManagement>
 		<site>
