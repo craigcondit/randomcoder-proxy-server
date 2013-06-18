@@ -93,10 +93,13 @@ public class ReceiveHandler extends AbstractHandler
 				}
 			}
 			while (c >= 0);
+			
+			tracker.receiveComplete(id);			
 		}
 		catch (SocketException e)
 		{
 			logger.debug("Receive [" + id + "]: user=" + CurrentUser.get() + ", error=" + e.getMessage());
+			tracker.receiveError(id);			
 		}
 		finally
 		{

@@ -152,6 +152,30 @@ public class EndpointTracker
 	}
 
 	/**
+	 * Signals the completion of a receive() call.
+	 * 
+	 * @param id
+	 *            unique identifier of endpoint
+	 */
+	public void receiveComplete(String id)
+	{
+		Endpoint endpoint = endpointMap.get(id);
+		events.offer(new EndpointEvent(id, endpoint == null ? "null" : endpoint.toString(), EventType.RECEIVE_COMPLETE, System.currentTimeMillis()));
+	}
+
+	/**
+	 * Signals an error on a receive() call.
+	 * 
+	 * @param id
+	 *            unique identifier of endpoint
+	 */
+	public void receiveError(String id)
+	{
+		Endpoint endpoint = endpointMap.get(id);
+		events.offer(new EndpointEvent(id, endpoint == null ? "null" : endpoint.toString(), EventType.RECEIVE_ERROR, System.currentTimeMillis()));
+	}
+	
+	/**
 	 * Refreshes an endpoint's timeout value, typically in response to activity
 	 * or a keep-alive request.
 	 * 

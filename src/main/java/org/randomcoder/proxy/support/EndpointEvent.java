@@ -21,6 +21,16 @@ public class EndpointEvent
 		DISCONNECT,
 
 		/**
+		 * Receive completed.
+		 */
+		RECEIVE_COMPLETE,
+		
+		/**
+		 * Receive error.
+		 */
+		RECEIVE_ERROR,
+		
+		/**
 		 * Connection expired.
 		 */
 		EXPIRE
