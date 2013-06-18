@@ -3,13 +3,12 @@ package org.randomcoder.proxy.handlers;
 import java.io.*;
 import java.net.SocketException;
 
-import javax.servlet.*;
+import javax.servlet.ServletException;
 import javax.servlet.http.*;
 
 import org.apache.log4j.*;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-
 import org.randomcoder.proxy.support.*;
 
 /**
@@ -65,16 +64,16 @@ public class ReceiveHandler extends AbstractHandler
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.setContentType("application/octet-stream");
 
-		ServletOutputStream out = null;
+		DataOutputStream out = null;
 		try
 		{
-			out = response.getOutputStream();
+			out = new DataOutputStream(response.getOutputStream());
 			out.flush();
 			InputStream endpointStream = endpoint.getInputStream();
 
 			// must send something here so that server will actually flush the
 			// result
-			out.write("SENDING\r\n".getBytes("UTF-8"));
+			out.writeInt(0);
 			out.flush();
 
 			byte[] buf = new byte[32768];
@@ -85,6 +84,7 @@ public class ReceiveHandler extends AbstractHandler
 				if (c > 0)
 				{
 					logger.debug("Wrote " + c + " bytes");
+					out.writeInt(c);
 					out.write(buf, 0, c);
 					out.flush();
 
