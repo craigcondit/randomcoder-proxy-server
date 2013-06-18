@@ -88,7 +88,7 @@ public class StatusHandler extends AbstractHandler
 			for (EndpointEvent event : tracker.getEvents())
 			{
 				out.print(df.format(new Date(event.getTimestamp())));
-				out.print("  ");
+				out.print(" ");
 				out.print(event.getStatus().name());
 				out.print(" ");
 				out.print(event.getConnectionId());
