@@ -66,4 +66,18 @@ public class SocketEndpoint implements Endpoint
 		{
 		}
 	}
+
+	@Override
+	public String toString()
+	{
+		StringBuilder buf = new StringBuilder();
+		buf.append(getClass().getSimpleName());
+		buf.append("[");
+		buf.append("local=");
+		buf.append(socket.getLocalSocketAddress());
+		buf.append(",remote=");
+		buf.append(socket.getRemoteSocketAddress());
+		buf.append("]");
+		return buf.toString();
+	}
 }

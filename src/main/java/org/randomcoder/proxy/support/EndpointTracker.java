@@ -1,9 +1,10 @@
 package org.randomcoder.proxy.support;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 
 import org.apache.log4j.Logger;
+import org.randomcoder.proxy.support.EndpointEvent.EventType;
 
 /**
  * Endpoint tracker which watches Endpoint instances and cleans them up after a
@@ -25,6 +26,11 @@ public class EndpointTracker
 	 * Map of ids to expiration times.
 	 */
 	protected final ConcurrentHashMap<String, Long> expirationMap = new ConcurrentHashMap<String, Long>();
+
+	/**
+	 * List of events.
+	 */
+	protected final ConcurrentLinkedQueue<EndpointEvent> events = new ConcurrentLinkedQueue<EndpointEvent>();
 
 	/**
 	 * Maximum idle time in milliseconds;
@@ -114,6 +120,8 @@ public class EndpointTracker
 	{
 		String id = UUID.randomUUID().toString();
 
+		events.offer(new EndpointEvent(id, endpoint.toString(), EventType.CONNECT, System.currentTimeMillis()));
+
 		endpointMap.put(id, endpoint);
 		expirationMap.put(id, System.currentTimeMillis() + maxIdle);
 
@@ -130,10 +138,13 @@ public class EndpointTracker
 	{
 		expirationMap.remove(id);
 		Endpoint endpoint = endpointMap.remove(id);
+		events.offer(new EndpointEvent(id, endpoint == null ? "null" : endpoint.toString(), EventType.DISCONNECT, System.currentTimeMillis()));
 		try
 		{
 			if (endpoint != null)
+			{
 				endpoint.close();
+			}
 		}
 		catch (Throwable ignored)
 		{
@@ -170,6 +181,38 @@ public class EndpointTracker
 		return endpointMap.get(id);
 	}
 
+	/**
+	 * Gets the endpoint map (for status).
+	 * 
+	 * @return endpoint map
+	 */
+	public TreeMap<String, Endpoint> getEndpointMap()
+	{
+		return new TreeMap<String, Endpoint>(endpointMap);
+	}
+
+	/**
+	 * Gets the expiration map (for status).
+	 * 
+	 * @return expiration map
+	 */
+	public Map<String, Long> getExpirationMap()
+	{
+		return new TreeMap<String, Long>(expirationMap);
+	}
+
+	/**
+	 * Gets the list of recent events.
+	 * 
+	 * @return event list
+	 */
+	public List<EndpointEvent> getEvents()
+	{
+		List<EndpointEvent> result = new ArrayList<EndpointEvent>(events);
+		Collections.reverse(result);
+		return result;
+	}
+
 	private final class ReaperThread extends Thread
 	{
 		private volatile boolean shutdown = false;
@@ -202,6 +245,9 @@ public class EndpointTracker
 							String id = entry.getKey();
 							expirationMap.remove(id);
 							Endpoint endpoint = endpointMap.remove(id);
+
+							events.offer(new EndpointEvent(id, endpoint == null ? "null" : endpoint.toString(), EventType.EXPIRE, System.currentTimeMillis()));
+
 							if (endpoint != null)
 							{
 								logger.info("Closing stale connection with ID " + id);
@@ -217,6 +263,15 @@ public class EndpointTracker
 					}
 
 					logger.debug("Done checking for stale connections");
+
+					logger.debug("Clearing event list");
+
+					while (events.size() > 100)
+					{
+						events.remove();
+					}
+
+					logger.debug("Done clearing event list");
 
 					// sleep until next round
 					try

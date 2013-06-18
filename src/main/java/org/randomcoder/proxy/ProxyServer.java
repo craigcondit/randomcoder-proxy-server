@@ -72,6 +72,7 @@ public class ProxyServer
 		handlers.addHandler(new ConnectHandler(context, tracker));
 		handlers.addHandler(new DisconnectHandler(context, tracker));
 		handlers.addHandler(new AuthHandler(context));
+		handlers.addHandler(new StatusHandler(context, tracker));
 
 		server.setHandler(handlers);
 	}
