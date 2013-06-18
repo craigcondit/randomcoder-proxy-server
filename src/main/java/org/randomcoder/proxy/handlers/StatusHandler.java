@@ -94,6 +94,7 @@ public class StatusHandler extends AbstractHandler
 				out.print(event.getConnectionId());
 				out.print(" ");
 				out.print(event.getDetails());
+				out.println();
 			}
 		}
 		finally
