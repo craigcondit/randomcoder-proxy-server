@@ -65,6 +65,7 @@ public class ReceiveHandler extends AbstractHandler
 		response.setContentType("application/octet-stream");
 
 		DataOutputStream out = null;
+		KeepaliveThread ka = null;
 		try
 		{
 			out = new DataOutputStream(response.getOutputStream());
@@ -73,9 +74,12 @@ public class ReceiveHandler extends AbstractHandler
 
 			// must send something here so that server will actually flush the
 			// result
-			
+
 			out.write("SENDING\r\n".getBytes("UTF-8"));
 			out.flush();
+
+			ka = new KeepaliveThread(id, out);
+			ka.start();
 
 			byte[] buf = new byte[32768];
 			int c;
@@ -85,25 +89,36 @@ public class ReceiveHandler extends AbstractHandler
 				if (c > 0)
 				{
 					logger.debug("Wrote " + c + " bytes");
-					out.writeInt(c);
-					out.write(buf, 0, c);
-					out.flush();
+					ka.activity();
+					sendPacket(out, buf, 0, c);
 
 					if (!tracker.refresh(id))
 						break;
 				}
 			}
 			while (c >= 0);
-			
-			tracker.receiveComplete(id);			
+
+			tracker.receiveComplete(id);
 		}
 		catch (SocketException e)
 		{
 			logger.debug("Receive [" + id + "]: user=" + CurrentUser.get() + ", error=" + e.getMessage());
-			tracker.receiveError(id);			
+			tracker.receiveError(id);
 		}
 		finally
 		{
+			if (ka != null)
+			{
+				ka.interrupt();
+				try
+				{
+					ka.join(30000L);
+				}
+				catch (InterruptedException ignored)
+				{
+				}
+				ka = null;
+			}
 			try
 			{
 				if (out != null)
@@ -115,6 +130,20 @@ public class ReceiveHandler extends AbstractHandler
 		}
 
 		baseRequest.setHandled(true);
+	}
+
+	private void sendPacket(DataOutputStream out, byte[] buf, int offset, int len)
+			throws IOException
+	{
+		synchronized (out)
+		{
+			out.writeInt(len);
+			if (len > 0)
+			{
+				out.write(buf, offset, len);
+			}
+			out.flush();
+		}
 	}
 
 	private void sendError(HttpServletResponse response, String error)
@@ -142,4 +171,55 @@ public class ReceiveHandler extends AbstractHandler
 		}
 	}
 
+	private class KeepaliveThread extends Thread
+	{
+		private volatile boolean shutdown = false;
+		private volatile boolean idle = true;
+		private final DataOutputStream dos;
+		private final byte[] NULL = new byte[0];
+
+		public KeepaliveThread(String id, DataOutputStream dos)
+		{
+			super("Keepalive " + id);
+			this.dos = dos;
+		}
+
+		@Override
+		public void run()
+		{
+			while (!shutdown)
+			{
+				try
+				{
+					idle = true;
+					Thread.sleep(30000L);
+				}
+				catch (InterruptedException ignored)
+				{
+				}
+				if (!shutdown && idle)
+				{
+					try
+					{
+						sendPacket(dos, NULL, 0, 0);
+					}
+					catch (IOException e)
+					{
+						logger.error("Error in keepalive thread", e);
+					}
+				}
+			}
+		}
+
+		public synchronized void shutdown()
+		{
+			shutdown = true;
+			interrupt();
+		}
+
+		public void activity()
+		{
+			idle = false;
+		}
+	}
 }
