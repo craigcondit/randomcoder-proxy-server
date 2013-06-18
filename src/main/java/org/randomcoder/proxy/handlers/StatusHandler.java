@@ -51,7 +51,7 @@ public class StatusHandler extends AbstractHandler
 		PrintWriter out = null;
 		try
 		{
-			DateFormat df = new SimpleDateFormat("M/d/yyyy h:mm:ss a Z");
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
 
 			out = response.getWriter();
 
@@ -87,14 +87,13 @@ public class StatusHandler extends AbstractHandler
 
 			for (EndpointEvent event : tracker.getEvents())
 			{
-				out.print(event.getConnectionId());
-				out.print(" => ");
+				out.print(df.format(new Date(event.getTimestamp())));
+				out.print("  ");
 				out.print(event.getStatus().name());
 				out.print(" ");
+				out.print(event.getConnectionId());
+				out.print(" ");
 				out.print(event.getDetails());
-				out.print(" (");
-				out.print(df.format(new Date(event.getTimestamp())));
-				out.println(")");
 			}
 		}
 		finally
