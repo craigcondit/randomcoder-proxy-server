@@ -73,7 +73,8 @@ public class ReceiveHandler extends AbstractHandler
 
 			// must send something here so that server will actually flush the
 			// result
-			out.writeInt(0);
+			
+			out.write("SENDING\r\n".getBytes("UTF-8"));
 			out.flush();
 
 			byte[] buf = new byte[32768];
