@@ -7,7 +7,6 @@ import java.util.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 
-import org.apache.log4j.*;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.randomcoder.proxy.support.*;
@@ -17,8 +16,6 @@ import org.randomcoder.proxy.support.*;
  */
 public class StatusHandler extends AbstractHandler
 {
-	private static final Logger logger = LogManager.getLogger(PingHandler.class);
-
 	private final String path;
 	private final EndpointTracker tracker;
 

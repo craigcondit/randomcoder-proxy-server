@@ -17,7 +17,10 @@ import org.randomcoder.proxy.support.*;
  */
 public class ReceiveHandler extends AbstractHandler
 {
-	private static final Logger logger = LogManager.getLogger(ReceiveHandler.class);
+	/**
+	 * Logger.
+	 */
+	protected static final Logger logger = LogManager.getLogger(ReceiveHandler.class);
 
 	private final String path;
 	private final EndpointTracker tracker;
@@ -109,7 +112,7 @@ public class ReceiveHandler extends AbstractHandler
 		{
 			if (ka != null)
 			{
-				ka.interrupt();
+				ka.shutdown();
 				try
 				{
 					ka.join(30000L);
@@ -132,7 +135,21 @@ public class ReceiveHandler extends AbstractHandler
 		baseRequest.setHandled(true);
 	}
 
-	private void sendPacket(DataOutputStream out, byte[] buf, int offset, int len)
+	/**
+	 * Sends a packet.
+	 * 
+	 * @param out
+	 *          output stream
+	 * @param buf
+	 *          buffer
+	 * @param offset
+	 *          offset
+	 * @param len
+	 *          length
+	 * @throws IOException
+	 *           if an error occurs
+	 */
+	protected void sendPacket(DataOutputStream out, byte[] buf, int offset, int len)
 			throws IOException
 	{
 		synchronized (out)
