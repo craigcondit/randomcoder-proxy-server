@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>randomcoder-base</artifactId>
 		<groupId>org.randomcoder</groupId>
-		<version>21</version>
+		<version>23</version>
 	</parent>
 	<groupId>org.randomcoder</groupId>
 	<artifactId>randomcoder-proxy-server</artifactId>
@@ -18,7 +18,7 @@
 	<scm>
 		<connection>scm:git:https://scm.randomcoder.org/git/randomcoder-proxy-server</connection>
 		<developerConnection>scm:git:https://scm.randomcoder.org/git/randomcoder-proxy-server</developerConnection>
-		<url>http://gitlist.randomcoder.org/randomcoder-proxy-server/</url>
+		<url>https://randomcoder.org/cgit/public/randomcoder-proxy-server/</url>
 	</scm>
 	<distributionManagement>
 		<site>
