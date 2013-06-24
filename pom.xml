@@ -28,44 +28,21 @@
 	</distributionManagement>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spring.version>2.0.7</spring.version>
 		<jetty.version>7.0.1.v20091125</jetty.version>
+		<log4j.version>1.2.17</log4j.version>
+		<junit.version>4.11</junit.version>
 	</properties>
-	<repositories>
-		<repository>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<id>randomcoder-release</id>
-			<name>Randomcoder Release</name>
-			<url>http://randomcoder.org/maven/repository/release</url>
-		</repository>
-		<repository>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<id>randomcoder-snapshot</id>
-			<name>Randomcoder Snapshot</name>
-			<url>http://randomcoder.org/maven/repository/snapshot</url>
-		</repository>
-	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.11</version>
+			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
+			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
@@ -85,7 +62,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.14.1</version>
+				<version>2.15</version>
 				<configuration>
 					<testFailureIgnore>false</testFailureIgnore>
 				</configuration>
@@ -130,14 +107,14 @@
 					<charset>UTF-8</charset>
 					<docencoding>UTF-8</docencoding>
 					<links>
-						<link>http://java.sun.com/javase/6/docs/api/</link>
-						<link>http://java.sun.com/j2ee/1.4/docs/api/</link>
+						<link>http://docs.oracle.com/javase/6/docs/api/</link>
+						<link>http://docs.oracle.com/javaee/5/api/</link>
 					</links>
 				</configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-surefire-report-plugin</artifactId>
-				<version>2.14.1</version>
+				<version>2.15</version>
 			</plugin>
 			<plugin>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
