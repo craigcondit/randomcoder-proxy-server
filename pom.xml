@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>randomcoder-base</artifactId>
 		<groupId>org.randomcoder</groupId>
-		<version>23</version>
+		<version>25</version>
 	</parent>
 	<groupId>org.randomcoder</groupId>
 	<artifactId>randomcoder-proxy-server</artifactId>
@@ -12,17 +12,17 @@
 	<name>Randomcoder Proxy Server</name>
 	<version>1.0.1-SNAPSHOT</version>
 	<description>HTTP Tunneling Proxy Server</description>
-	<url>https://nexus.randomcoder.org/content/sites/randomcoder-proxy-server/</url>
+	<url>https://randomcoder.org/nexus/content/sites/randomcoder-proxy-server/</url>
 	<inceptionYear>2007</inceptionYear>
 	<scm>
-		<connection>scm:git:https://scm.randomcoder.org/git/randomcoder-proxy-server</connection>
-		<developerConnection>scm:git:https://scm.randomcoder.org/git/randomcoder-proxy-server</developerConnection>
+		<connection>scm:git:https://randomcoder.org/scm/git/randomcoder-proxy-server</connection>
+		<developerConnection>scm:git:https://randomcoder.org/scm/git/randomcoder-proxy-server</developerConnection>
 		<url>https://randomcoder.org/cgit/public/randomcoder-proxy-server/</url>
 	</scm>
 	<distributionManagement>
 		<site>
 			<id>randomcoder-site</id>
-			<url>dav:https://nexus.randomcoder.org/content/sites/${project.artifactId}</url>
+			<url>dav:https://${repository.host}/nexus/content/sites/${project.artifactId}</url>
 		</site>
 	</distributionManagement>
 	<properties>
