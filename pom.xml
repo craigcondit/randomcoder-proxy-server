@@ -10,7 +10,7 @@
 	<artifactId>randomcoder-proxy-server</artifactId>
 	<packaging>jar</packaging>
 	<name>Randomcoder Proxy Server</name>
-	<version>1.0.1</version>
+	<version>1.0.2-SNAPSHOT</version>
 	<description>HTTP Tunneling Proxy Server</description>
 	<url>https://randomcoder.org/nexus/content/sites/randomcoder-proxy-server/</url>
 	<inceptionYear>2007</inceptionYear>
