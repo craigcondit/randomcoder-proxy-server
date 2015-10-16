@@ -2,9 +2,9 @@
 
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>randomcoder-base</artifactId>
+    <artifactId>randomcoder-parent</artifactId>
     <groupId>org.randomcoder</groupId>
-    <version>27</version>
+    <version>1</version>
   </parent>
   <groupId>org.randomcoder</groupId>
   <artifactId>randomcoder-proxy-server</artifactId>
@@ -23,12 +23,31 @@
     <url>https://github.com/insideo/randomcoder-proxy-server</url>
     <tag>HEAD</tag>
   </scm>
+  <developers>
+    <developer>
+      <id>ccondit</id>
+      <name>Craig Condit</name>
+      <email>ccondit@randomcoder.org</email>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+      </roles>
+      <timezone>-7</timezone>
+    </developer>
+  </developers>
+  <licenses>
+    <license>
+      <name>New BSD License</name>
+      <url>http://www.opensource.org/licenses/bsd-license.php</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jetty.version>7.0.1.v20091125</jetty.version>
     <log4j.version>1.2.17</log4j.version>
     <junit.version>4.11</junit.version>
-    <randomcoder.log4j.systemd.journal.version>1.0.6</randomcoder.log4j.systemd.journal.version>
+    <randomcoder.log4j.systemd.journal.version>1.0.7</randomcoder.log4j.systemd.journal.version>
   </properties>
   <repositories>
     <repository>
