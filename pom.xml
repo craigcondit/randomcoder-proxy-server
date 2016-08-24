@@ -46,7 +46,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jetty.version>9.3.11.v20160721</jetty.version>
     <log4j.version>1.2.17</log4j.version>
-    <junit.version>4.11</junit.version>
+    <slf4j.version>1.7.12</slf4j.version>
+    <junit.version>4.12</junit.version>
     <randomcoder.log4j.systemd.journal.version>1.0.7</randomcoder.log4j.systemd.journal.version>
   </properties>
   <repositories>
@@ -63,17 +64,6 @@
   </repositories>
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>${log4j.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-server</artifactId>
       <version>${jetty.version}</version>
@@ -87,6 +77,22 @@
       <groupId>org.eclipse.jetty.http2</groupId>
       <artifactId>http2-server</artifactId>
       <version>${jetty.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>${log4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>${slf4j.version}</version>
     </dependency>
     <dependency>
       <groupId>org.randomcoder</groupId>

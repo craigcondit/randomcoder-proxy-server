@@ -35,11 +35,16 @@ import org.randomcoder.proxy.handlers.ReceiveHandler;
 import org.randomcoder.proxy.handlers.SendHandler;
 import org.randomcoder.proxy.handlers.StatusHandler;
 import org.randomcoder.proxy.support.EndpointTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * HTTP tunneling proxy server.
  */
 public class ProxyServer {
+
+	private static final Logger LOG = LoggerFactory.getLogger(ProxyServer.class);
+
 	private static final int DEFAULT_PORT = 9999;
 	private static final String DEFAULT_PATH = "/proxy";
 	private static final String DEFAULT_HOST = "127.0.0.1";
@@ -171,7 +176,7 @@ public class ProxyServer {
 		try {
 			server.stop();
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error("Error during shutdown", e);
 		}
 		tracker.destroy();
 	}
@@ -232,6 +237,8 @@ public class ProxyServer {
 
 		Runtime.getRuntime().addShutdownHook(new Thread(proxy::stop));
 		proxy.start();
+
+		LOG.info("Proxy started");
 	}
 
 	/**
