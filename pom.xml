@@ -10,7 +10,7 @@
   <artifactId>randomcoder-proxy-server</artifactId>
   <packaging>jar</packaging>
   <name>Randomcoder Proxy Server</name>
-  <version>1.0.6</version>
+  <version>1.0.7-SNAPSHOT</version>
   <description>HTTP Tunneling Proxy Server</description>
   <url>https://github.com/insideo/randomcoder-proxy-server</url>
   <inceptionYear>2007</inceptionYear>
@@ -21,7 +21,7 @@
     <connection>scm:git:https://github.com/insideo/randomcoder-proxy-server.git</connection>
     <developerConnection>scm:git:git@github.com:insideo/randomcoder-proxy-server.git</developerConnection>
     <url>https://github.com/insideo/randomcoder-proxy-server</url>
-    <tag>randomcoder-proxy-server-1.0.6</tag>
+    <tag>HEAD</tag>
   </scm>
   <developers>
     <developer>
