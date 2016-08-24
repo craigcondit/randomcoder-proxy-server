@@ -89,7 +89,7 @@ public class ProxyServer {
 			context = "";
 		}
 
-		QueuedThreadPool threadPool = new QueuedThreadPool(10, 4, 60000);
+		QueuedThreadPool threadPool = new QueuedThreadPool(100, 10, 60000);
 
 		server = new Server(threadPool);
 		server.addBean(new ScheduledExecutorScheduler());
@@ -103,7 +103,9 @@ public class ProxyServer {
 
 		HandlerCollection handlers = new HandlerCollection();
 
-		handlers.addHandler(new SecuredRedirectHandler());
+		if (forceHttps) {
+			handlers.addHandler(new SecuredRedirectHandler());
+		}
 
 		if (sendSts) {
 			RewriteHandler rewriteHandler = new RewriteHandler();
