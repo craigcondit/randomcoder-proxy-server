@@ -103,10 +103,6 @@ public class ProxyServer {
 
 		HandlerCollection handlers = new HandlerCollection();
 
-		if (forceHttps) {
-			handlers.addHandler(new SecuredRedirectHandler());
-		}
-
 		if (sendSts) {
 			RewriteHandler rewriteHandler = new RewriteHandler();
 			RuleContainer rules = new RuleContainer();
@@ -118,6 +114,10 @@ public class ProxyServer {
 			rules.addRule(stsRule);
 			rewriteHandler.setRuleContainer(rules);
 			handlers.addHandler(rewriteHandler);
+		}
+
+		if (forceHttps) {
+			handlers.addHandler(new SecuredRedirectHandler());
 		}
 
 		// authentication handler must be first
@@ -166,11 +166,13 @@ public class ProxyServer {
 	/**
 	 * Stops the server.
 	 * 
-	 * @throws Exception
-	 *             if an error occurs
 	 */
-	public void stop() throws Exception {
-		server.stop();
+	public void stop() {
+		try {
+			server.stop();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		tracker.destroy();
 	}
 
@@ -227,19 +229,9 @@ public class ProxyServer {
 
 		final ProxyServer proxy = new ProxyServer(host, port, context, passwdFile, forwarded, forceHttps, sendSts,
 				stsMaxAge);
-		proxy.start();
 
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				try {
-					proxy.stop();
-				} catch (Exception e) {
-					e.printStackTrace();
-					System.exit(1);
-				}
-			}
-		});
+		Runtime.getRuntime().addShutdownHook(new Thread(proxy::stop));
+		proxy.start();
 	}
 
 	/**
