@@ -14,9 +14,6 @@
 	<description>HTTP Tunneling Proxy Server</description>
 	<url>https://github.com/insideo/randomcoder-proxy-server</url>
 	<inceptionYear>2007</inceptionYear>
-	<prerequisites>
-		<maven>3.3.3</maven>
-	</prerequisites>
 	<scm>
 		<connection>scm:git:https://github.com/insideo/randomcoder-proxy-server.git</connection>
 		<developerConnection>scm:git:git@github.com:insideo/randomcoder-proxy-server.git</developerConnection>
