@@ -1,5 +1,5 @@
 /**
- * Jetty handlers. 
+ * Jetty handlers.
  */
 package org.randomcoder.proxy.handlers;
 
